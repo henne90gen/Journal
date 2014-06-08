@@ -2,12 +2,12 @@ package base;
 
 import javax.swing.SwingUtilities;
 
-public class FirstApplication {
+public class Journal {
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new FA_Window();
+				new J_Window();
 			}
 		});
 	}

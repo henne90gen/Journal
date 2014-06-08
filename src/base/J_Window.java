@@ -3,9 +3,9 @@ package base;
 import java.awt.*;
 import javax.swing.*;
 
-public class FA_Window extends JFrame{
+public class J_Window extends JFrame{
 	
-	private FA_ActionListener actionListener = new FA_ActionListener();
+	private J_ActionListener actionListener = new J_ActionListener();
 	
 	public static JButton redButton = new JButton("Red Score!");
 	public static JButton blueButton = new JButton("Blue Score!");
@@ -17,7 +17,7 @@ public class FA_Window extends JFrame{
 	private static int redScoreAmount = 0;
 	private static int blueScoreAmount = 0;
 	
-	FA_Window() {
+	J_Window() {
 		super("My First Application");
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		
