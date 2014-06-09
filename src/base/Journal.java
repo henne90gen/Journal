@@ -21,14 +21,13 @@ public class Journal {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				window = new J_Window();
+				new Journal();
 			}
 		});
-		new Journal();
 	}
 	
 	public Journal() {
 		if (readComments()) {
-			
 			
 			
 			
@@ -38,11 +37,11 @@ public class Journal {
 	private boolean readComments() {
 		
 		try {
-			int numDays = countLines("Comments.txt") / 8;
+			int numDays = (countLines("Comments.txt") + 1) / 8;
 			
 			BufferedReader br = new BufferedReader(new FileReader("Comments.txt"));
 			String line = br.readLine();
-			int lineCounter = 0;
+			int lineCounter = 10;
 			int key = 0;
 			
 			while (line != null) {
