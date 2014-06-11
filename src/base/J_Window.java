@@ -1,19 +1,18 @@
 package base;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 
 import javax.swing.*;
 
 public class J_Window extends JFrame{
 	
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
-	//private J_ActionListener actionListener = new J_ActionListener();
+	private J_ListSelectionListener listSelectionListener = new J_ListSelectionListener();
 	private JProgressBar progressBar = new JProgressBar();
 	private JTextPane textPane = new JTextPane();
-	private JList<String> list = new JList<String>();
+	public static JList<String> list = new JList<String>();
 	
 	public J_Window() {
 		super("My First Application");
@@ -41,7 +40,16 @@ public class J_Window extends JFrame{
 		
 		list.setToolTipText("");
 		list.setBounds(10, 36, 146, 414);
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setVisibleRowCount(-1);
+		list.addListSelectionListener(listSelectionListener);
 		mainGUI.add(list);
+		
+		/*JScrollPane listScroller = new JScrollPane();
+		listScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		listScroller.setPreferredSize(new Dimension(250, 80));
+		mainGUI.add(listScroller);*/
+		
 		return mainGUI;
 	}
 	
