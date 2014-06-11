@@ -1,5 +1,7 @@
 package base;
 
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class J_Window extends JFrame{
@@ -11,7 +13,7 @@ public class J_Window extends JFrame{
 	//private J_ActionListener actionListener = new J_ActionListener();
 	private JProgressBar progressBar = new JProgressBar();
 	private JTextPane textPane = new JTextPane();
-	private JList<?> list = new JList<Object>();
+	private JList<String> list = new JList<String>();
 	
 	public J_Window() {
 		super("My First Application");
@@ -49,5 +51,9 @@ public class J_Window extends JFrame{
 	
 	public void setProgressBar(int value) {
 		progressBar.setValue(value);
+	}
+	
+	public void setListData(String[] listData) {
+		list.setListData(listData);
 	}
 }

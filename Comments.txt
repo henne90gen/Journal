@@ -13,4 +13,4 @@ Mon Sep 02 19:52:58 CEST 2013
 
 This day was awesome.
 
-Generic text to test the Programm.
+Generic text to test the programm.

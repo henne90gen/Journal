@@ -14,8 +14,9 @@ import javax.swing.SwingUtilities;
 public class Journal {
 
 	private static J_Window window;
-	private HashMap<Integer, String> entriesToSearch = new HashMap<Integer, String>();
 	private ArrayList<String> entries = new ArrayList<String>();
+	private String[] dates;
+	private HashMap<Integer, String> entriesToSearch = new HashMap<Integer, String>();
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -29,26 +30,33 @@ public class Journal {
 	public Journal() {
 		if (readComments()) {
 			
+			window.setListData(dates);
 			
-			
+		} else {
+			window.setTextPane("There was an error while reading the 'Comments.txt' file.");
 		}
 	}
-	
+
 	private boolean readComments() {
-		
 		try {
 			int numDays = (countLines("Comments.txt") + 1) / 8;
+			dates = new String[numDays];
 			
 			BufferedReader br = new BufferedReader(new FileReader("Comments.txt"));
 			String line = br.readLine();
 			int lineCounter = 10;
 			int key = 0;
+			String date = "";
 			
 			while (line != null) {
 				if (line.equalsIgnoreCase("--------------------------------------------------")) { lineCounter = 0; } else { lineCounter++; }
-				if (lineCounter == 1) { key = getKey(line); } else if (lineCounter == 5) {
+				if (lineCounter == 1) {
+					key = getKey(line);
+					date = getDate(line);
+				} else if (lineCounter == 5) {
 					entriesToSearch.put(key, line);
 					entries.add(line);
+					dates[entries.size() - 1] = date;
 					window.setProgressBar((100 * entries.size()) / numDays);
 				}
 				line = br.readLine();
@@ -61,6 +69,13 @@ public class Journal {
 		return true;
 	}
 	
+	private String getDate(String line) {
+		String date = "";
+		String[] parts = line.split(" ");
+		date = parts[0] + " " + parts[1] + " " + parts[2];
+		return date;
+	}
+
 	private Integer getKey(String day) {
 		String key = "";
 		
