@@ -13,15 +13,14 @@ import javax.swing.SwingUtilities;
 
 public class Journal {
 
-	private static J_Window window;
-	private ArrayList<String> entries = new ArrayList<String>();
+	public static ArrayList<String> entries = new ArrayList<String>();
 	private String[] dates;
 	private HashMap<Integer, String> entriesToSearch = new HashMap<Integer, String>();
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				window = new J_Window();
+				new J_Window();
 				new Journal();
 			}
 		});
@@ -30,10 +29,11 @@ public class Journal {
 	public Journal() {
 		if (readComments()) {
 			
-			window.setListData(dates);
+			J_Window.list.setListData(dates);
+			J_Window.textPane.setText(entries.get(0));
 			
 		} else {
-			window.setTextPane("There was an error while reading the 'Comments.txt' file.");
+			J_Window.textPane.setText("There was an error while reading the 'Comments.txt' file.");
 		}
 	}
 
@@ -57,7 +57,6 @@ public class Journal {
 					entriesToSearch.put(key, line);
 					entries.add(line);
 					dates[entries.size() - 1] = date;
-					window.setProgressBar((100 * entries.size()) / numDays);
 				}
 				line = br.readLine();
 			}
@@ -142,5 +141,9 @@ public class Journal {
 	    } finally {
 	        is.close();
 	    }
+	}
+	
+	public ArrayList<String> getEntries() {
+		return entries;
 	}
 }
