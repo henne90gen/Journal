@@ -35,27 +35,27 @@ public class J_Window extends JFrame{
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints gbc = new GridBagConstraints();
 		mainPanel.setLayout(layout);
-		mainPanel.setSize(this.getWidth(), this.getHeight());
+		mainPanel.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
 		
-		JScrollPane listScrollPane = new JScrollPane(list);
+		
+		//List:
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setVisibleRowCount(2);
+		list.addListSelectionListener(listSelectionListener);
+		
+		JScrollPane listScrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		listScrollPane.setPreferredSize(new Dimension(130, 430));
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = 0;
 		gbc.gridy = 1;
 		mainPanel.add(listScrollPane, gbc);
-		
-		//List:
-		list.setPreferredSize(new Dimension(150, 430));
-		list.setToolTipText("");
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.setVisibleRowCount(-1);
-		list.addListSelectionListener(listSelectionListener);
 
 		gbc.gridheight = 2;
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		textPane.setEditable(false);
-		textPane.setPreferredSize(new Dimension(500, 430));;
 		JScrollPane scrollPane = new JScrollPane(textPane);
+		scrollPane.setPreferredSize(new Dimension(500, 430));
 		mainPanel.add(scrollPane, gbc);
 		
 		return mainPanel;
