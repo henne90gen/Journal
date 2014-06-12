@@ -37,10 +37,11 @@ public class J_Window extends JFrame{
 		mainPanel.setLayout(layout);
 		mainPanel.setSize(this.getWidth(), this.getHeight());
 		
+		JScrollPane listScrollPane = new JScrollPane(list);
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		mainPanel.add(list, gbc);
+		mainPanel.add(listScrollPane, gbc);
 		
 		//List:
 		list.setPreferredSize(new Dimension(150, 430));
