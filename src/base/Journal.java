@@ -82,40 +82,40 @@ public class Journal {
 		
 		switch (parts[1]) {
 		case "Jan":
-			key = 11 + parts[2] + parts[5]; 
+			key = 11 + parts[2] + parts[5];
 			break;
 		case "Feb":
-			key = 12 + parts[2] + parts[5]; 
+			key = 12 + parts[2] + parts[5];
 			break;
 		case "Mar":
-			key = 13 + parts[2] + parts[5]; 
+			key = 13 + parts[2] + parts[5];
 			break;
 		case "Apr":
-			key = 14 + parts[2] + parts[5]; 
+			key = 14 + parts[2] + parts[5];
 			break;
 		case "May":
-			key = 15 + parts[2] + parts[5]; 
+			key = 15 + parts[2] + parts[5];
 			break;
 		case "Jun":
-			key = 16 + parts[2] + parts[5]; 
+			key = 16 + parts[2] + parts[5];
 			break;
 		case "Jul":
-			key = 17 + parts[2] + parts[5]; 
+			key = 17 + parts[2] + parts[5];
 			break;
 		case "Aug":
-			key = 18 + parts[2] + parts[5]; 
+			key = 18 + parts[2] + parts[5];
 			break;
 		case "Sep":
-			key = 19 + parts[2] + parts[5]; 
+			key = 19 + parts[2] + parts[5];
 			break;
 		case "Oct":
-			key = 20 + parts[2] + parts[5]; 
+			key = 20 + parts[2] + parts[5];
 			break;
 		case "Nov":
-			key = 21 + parts[2] + parts[5]; 
+			key = 21 + parts[2] + parts[5];
 			break;
 		case "Dec":
-			key = 22 + parts[2] + parts[5]; 
+			key = 22 + parts[2] + parts[5];
 			break;
 		}
 		
