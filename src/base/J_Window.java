@@ -14,7 +14,8 @@ public class J_Window extends JFrame {
 	public static JTextPane textPane = new JTextPane();
 	public static JList<String> list = new JList<String>();
 	public static JTextField searchBar = new JTextField();
-	private JButton searchButton = new JButton();
+	public static JButton searchButton = new JButton();
+	public static JButton reload = new JButton();
 	
 	public J_Window() {
 		super("My First Application");
@@ -36,11 +37,21 @@ public class J_Window extends JFrame {
 		//Layout:
 		GridBagLayout layout = new GridBagLayout();
 		GridBagConstraints gbcList = new GridBagConstraints();
+		GridBagConstraints gbcReload = new GridBagConstraints();
 		GridBagConstraints gbcSearch = new GridBagConstraints();
 		GridBagConstraints gbcText = new GridBagConstraints();
 		GridBagConstraints gbcButton = new GridBagConstraints();
 		mainPanel.setLayout(layout);
 		mainPanel.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
+		
+		//Reload button:
+		reload.addActionListener(actionListener);
+		reload.setText("Reload");
+		reload.setPreferredSize(new Dimension(20, 20));
+		gbcReload.fill = GridBagConstraints.BOTH;
+		gbcReload.gridx = 0;
+		gbcReload.gridy = 0;
+		mainPanel.add(reload, gbcReload);
 		
 		//List:
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -50,9 +61,8 @@ public class J_Window extends JFrame {
 		JScrollPane listScrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		listScrollPane.setPreferredSize(new Dimension(130, 430));
 		gbcList.fill = GridBagConstraints.BOTH;
-		gbcList.gridheight = 2;
 		gbcList.gridx = 0;
-		gbcList.gridy = 0;
+		gbcList.gridy = 1;
 		mainPanel.add(listScrollPane, gbcList);
 		
 		//Searchbar:

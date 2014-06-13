@@ -2,20 +2,30 @@ package base;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class J_ActionListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (checkDateFormat(J_Window.searchBar.getText())) {
-			int index = getIndex(J_Window.searchBar.getText());
+		if (e.getSource().equals(J_Window.searchButton)) {
+			if (checkDateFormat(J_Window.searchBar.getText())) {
+				int index = getIndex(J_Window.searchBar.getText());
 			
-			J_Window.textPane.setText(Journal.entriesToSearch.get(index));
-			for (int i = 0; i < Journal.entries.size(); i++) {
-				if (Journal.entries.get(i).equalsIgnoreCase(Journal.entriesToSearch.get(index))) {
-					J_Window.list.setSelectedIndex(i);
+				J_Window.textPane.setText(Journal.entriesToSearch.get(index));
+				for (int i = 0; i < Journal.entries.size(); i++) {
+					if (Journal.entries.get(i).equalsIgnoreCase(Journal.entriesToSearch.get(index))) {
+						J_Window.list.setSelectedIndex(i);
+					}
 				}
+				J_Window.searchBar.setText("");
 			}
+		} else if (e.getSource().equals(J_Window.reload)) {
+			Journal.dates = null;
+			Journal.entries = new ArrayList<String>();
+			Journal.entriesToSearch = new HashMap<Integer, String>();
+			Journal.readComments();
 		}
 	}
 
@@ -69,7 +79,7 @@ public class J_ActionListener implements ActionListener {
 	private boolean checkDateFormat(String text) {
 		String[] parts = text.split("\\.");
 		
-		if (parts.length == 0) {
+		if (parts.length == 0 || parts.length == 1 || parts.length == 2 || parts.length >= 4) {
 			return false;
 		}
 		

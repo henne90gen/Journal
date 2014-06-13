@@ -37,7 +37,7 @@ public class Journal {
 		}
 	}
 
-	private boolean readComments() {
+	public static boolean readComments() {
 		try {
 			int numDays = (countLines("Comments.txt") + 1) / 8;
 			dates = new String[numDays];
@@ -68,14 +68,14 @@ public class Journal {
 		return true;
 	}
 	
-	private String getDate(String line) {
+	private static String getDate(String line) {
 		String date = "";
 		String[] parts = line.split(" ");
 		date = parts[0] + " " + parts[1] + " " + parts[2];
 		return date;
 	}
 
-	private Integer getKey(String day) {
+	private static Integer getKey(String day) {
 		String key = "";
 		
 		String[] parts = day.split(" ");
