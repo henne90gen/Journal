@@ -14,8 +14,8 @@ import javax.swing.SwingUtilities;
 public class Journal {
 
 	public static ArrayList<String> entries = new ArrayList<String>();
-	private String[] dates;
-	private HashMap<Integer, String> entriesToSearch = new HashMap<Integer, String>();
+	public static HashMap<Integer, String> entriesToSearch = new HashMap<Integer, String>();
+	public static String[] dates;
 	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
