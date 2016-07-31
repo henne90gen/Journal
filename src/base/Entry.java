@@ -1,6 +1,7 @@
 package base;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Created by henne on 29.07.16.
@@ -11,33 +12,34 @@ public class Entry {
         Awesome, Great, Good, Undecided, Bad, Poor, Waste
     }
 
-    private LocalDate m_date;
-    private String m_entry;
-    private Mood m_mood;
+    private LocalDate date;
+    private String entry;
+    private Mood mood;
 
     public Entry() {
-        m_date = LocalDate.now();
-        m_entry = "";
-        m_mood = Mood.Undecided;
+        date = LocalDate.now();
+        entry = "";
+        mood = Mood.Undecided;
     }
 
-    public Entry(LocalDate d, String e, Mood m) {
-        m_date = d;
-        m_entry = e;
-        m_mood = m;
+    public Entry(LocalDate date, String entry, Mood mood) {
+        this.date = date;
+        this.entry = entry;
+        this.mood = mood;
     }
 
     @Override
     public String toString() {
-        return m_date.toString();
+        DateTimeFormatter f = DateTimeFormatter.ofPattern("dd.MM.YYYY");
+        return date.format(f);
     }
 
     public LocalDate getDate() {
-        return m_date;
+        return date;
     }
 
     public void setDate(LocalDate d) {
-        m_date = d;
+        date = d;
     }
 
     public boolean setDate(String d) {
@@ -46,18 +48,18 @@ public class Entry {
     }
 
     public String getText() {
-        return m_entry;
+        return entry;
     }
 
     public void setText(String t) {
-        m_entry = t;
+        entry = t;
     }
 
     public Mood getMood() {
-        return m_mood;
+        return mood;
     }
 
     public void setMood(Mood m) {
-        m_mood = m;
+        mood = m;
     }
 }

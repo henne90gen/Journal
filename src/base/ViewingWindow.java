@@ -1,30 +1,33 @@
 package base;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class ViewingWindow extends JFrame implements ListSelectionListener, ActionListener {
+public class ViewingWindow extends JFrame implements ListSelectionListener, ActionListener, DocumentListener {
 
     private static final String NEW_BUTTON = "New";
     private static final String SEARCH_BUTTON = "Search";
     private static final String RELOAD_BUTTON = "Reload";
-    private static final String SEARCH_TEXTFIELD = "Search text field";
 
-    private Journal m_journal;
+    private Journal journal;
     private JTextPane textPane;
-    private JList<Entry> list;
+    private JList<Entry> dateList;
 	private JTextField searchTF;
 	private JButton newBtn, searchBtn, reloadBtn;
 	
-	public ViewingWindow(Journal j) {
+	public ViewingWindow(Journal journal) {
 		super("My First Application");
-		m_journal = j;
+		this.journal = journal;
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(700, 500));
         setMinimumSize(new Dimension(700, 500));
 
@@ -37,13 +40,13 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
 	}
 
 	public void updateUI() {
-        System.out.println("Updating UI");
-        Entry[] entries = new Entry[m_journal.getEntries().size()];
+        Entry[] entries = new Entry[journal.getEntries().size()];
         for (int i = 0; i < entries.length; i++) {
-            entries[i] = m_journal.getEntries().get(i);
+            entries[i] = journal.getEntries().get(i);
         }
-        list.setListData(entries);
-        list.setSelectedIndex(0);
+        dateList.setListData(entries);
+        dateList.setSelectedIndex(0);
+        searchTF.setText("");
     }
 	
 	public JPanel createGUI() {
@@ -52,8 +55,10 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // New button
         newBtn = new JButton(NEW_BUTTON);
@@ -61,11 +66,26 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         newBtn.setActionCommand(NEW_BUTTON);
         topPanel.add(newBtn);
 
+		// Search text
+        JLabel searchL = new JLabel("Type in a date:");
+        topPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+        topPanel.add(searchL);
+
         // Search text field
         searchTF = new JTextField();
+        searchTF.setActionCommand(SEARCH_BUTTON);
         searchTF.addActionListener(this);
-        searchTF.setActionCommand(SEARCH_TEXTFIELD);
-        searchTF.setToolTipText("Date format: dd.mm");
+        searchTF.addKeyListener(new KeyListener() {
+            @Override public void keyTyped(KeyEvent e) {
+                if (!Character.isDigit(e.getKeyChar())) {
+                    e.consume();
+                }
+            }
+            @Override public void keyPressed(KeyEvent e) {}
+            @Override public void keyReleased(KeyEvent e) {}
+        });
+        searchTF.getDocument().addDocumentListener(this);
+        searchTF.setToolTipText("Date format: mm.dd.yyyy");
         topPanel.add(searchTF);
 
         // Search button
@@ -82,12 +102,12 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
 		
 
         // List
-        list = new JList<>();
-		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.setVisibleRowCount(2);
-		list.addListSelectionListener(this);
+        dateList = new JList<>();
+		dateList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		dateList.setVisibleRowCount(2);
+		dateList.addListSelectionListener(this);
 		
-		JScrollPane listScrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane listScrollPane = new JScrollPane(dateList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		listScrollPane.setPreferredSize(new Dimension(130, 430));
 		bottomPanel.add(listScrollPane);
 		
@@ -105,11 +125,9 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-	    int selection = list.getSelectedIndex();
-	    if (selection == -1) {
-	        selection = 0;
+	    if (dateList.getSelectedIndex() != -1) {
+            textPane.setText(dateList.getSelectedValue().getText());
         }
-		textPane.setText(m_journal.getEntries().get(selection).getText());
 	}
 
 	@Override
@@ -118,8 +136,8 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
             case NEW_BUTTON:
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        NewEntryWindow window = new NewEntryWindow(m_journal);
-                        window.addWindowListener(m_journal);
+                        NewEntryWindow window = new NewEntryWindow(journal);
+                        window.addWindowListener(journal);
                     }
                 });
                 break;
@@ -127,101 +145,50 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
                 updateUI();
                 break;
             case SEARCH_BUTTON:
+                // Adding dot after day and month automatically
+                if (searchTF.getText().length() == 2 || searchTF.getText().length() == 5) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            searchTF.setText(searchTF.getText() + ".");
+                        }
+                    });
+                    break;
+                }
 
-                break;
-            case SEARCH_TEXTFIELD:
-
+                // Search
+                String[] tmp = searchTF.getText().split("\\.");
+                int[] date = {-1, -1, -1};
+                if (tmp.length == 1 && !tmp[0].equalsIgnoreCase("")) {
+                    date[0] = Integer.parseInt(tmp[0]);
+                } else if (tmp.length == 2) {
+                    date[0] = Integer.parseInt(tmp[0]);
+                    date[1] = Integer.parseInt(tmp[1]);
+                } else if (tmp.length == 3) {
+                    date[0] = Integer.parseInt(tmp[0]);
+                    date[1] = Integer.parseInt(tmp[1]);
+                    date[2] = Integer.parseInt(tmp[2]);
+                }
+                dateList.setListData(journal.searchForDate(date[1], date[0], date[2]));
+                dateList.setSelectedIndex(0);
                 break;
         }
-/*
-if (checkDateFormat(searchTF.getText())) {
-int index = getIndex(searchTF.getText());
-
-textPane.setText(entriesToSearch.get(index));
-for (int i = 0; i < entries.size(); i++) {
-if (entries.get(i).equalsIgnoreCase(entriesToSearch.get(index))) {
-list.setSelectedIndex(i);
-}
-}
-searchTF.setText("");
-}
-dates = null;
-entries = new ArrayList<String>();
-entriesToSearch = new HashMap<Integer, String>();
-readComments();
-*/
     }
 
-	private int getIndex(String date) {
-		String index = "";
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        actionPerformed(new ActionEvent(searchTF, 0, SEARCH_BUTTON));
+    }
 
-		String[] parts = date.split("\\.");
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        if (searchTF.getText().length() != 2 && searchTF.getText().length() != 5) {
+            actionPerformed(new ActionEvent(searchTF, 0, SEARCH_BUTTON));
+        }
+    }
 
-		switch (parts[1]) {
-			case "01":
-				index = 11 + parts[0] + parts[2];
-				break;
-			case "02":
-				index = 12 + parts[0] + parts[2];
-				break;
-			case "03":
-				index = 13 + parts[0] + parts[2];
-				break;
-			case "04":
-				index = 14 + parts[0] + parts[2];
-				break;
-			case "05":
-				index = 15 + parts[0] + parts[2];
-				break;
-			case "06":
-				index = 16 + parts[0] + parts[2];
-				break;
-			case "07":
-				index = 17 + parts[0] + parts[2];
-				break;
-			case "08":
-				index = 18 + parts[0] + parts[2];
-				break;
-			case "09":
-				index = 19 + parts[0] + parts[2];
-				break;
-			case "10":
-				index = 20 + parts[0] + parts[2];
-				break;
-			case "11":
-				index = 21 + parts[0] + parts[2];
-				break;
-			case "12":
-				index = 22 + parts[0] + parts[2];
-				break;
-		}
-
-		return new Integer(index);
-	}
-
-	private boolean checkDateFormat(String text) {
-		String[] parts = text.split("\\.");
-
-		if (parts.length < 3 || parts.length > 3) {
-			return false;
-		}
-
-		if (parts[0].equalsIgnoreCase("")) {
-			return false;
-		} else if (parts[1].equalsIgnoreCase("")){
-			return false;
-		} else if (parts[2].equalsIgnoreCase("")) {
-			return false;
-		}
-
-		if (parts[0].length() != 2) {
-			return false;
-		} else if (parts[1].length() != 2) {
-			return false;
-		} else if (parts[2].length() != 4) {
-			return false;
-		}
-
-		return true;
-	}
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        actionPerformed(new ActionEvent(searchTF, 0, SEARCH_BUTTON));
+    }
 }

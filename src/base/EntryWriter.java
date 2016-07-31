@@ -9,7 +9,11 @@ public class EntryWriter {
         String feeling = "This day was " + entry.getMood().toString().toLowerCase() + ".";
 
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("Comments.txt", true));
+            File f = new File(Journal.COMMENTS_FILE_NAME);
+            if (!f.exists()) {
+                f.createNewFile();
+            }
+            BufferedWriter writer = new BufferedWriter(new FileWriter(Journal.COMMENTS_FILE_NAME, true));
             writer.write("\n\n--------------------------------------------------\n" + new Date() + "\n" + "\n" + feeling + "\n" + "\n" + entry.getText());
             writer.close();
         }
@@ -19,19 +23,26 @@ public class EntryWriter {
 
         String[] split = null;
         try {
-            BufferedReader brs = new BufferedReader(new FileReader("Stats.txt"));
-            String tmp = brs.readLine();
+            File f = new File(Journal.STATS_FILE_NAME);
+            if (!f.exists()) {
+                f.createNewFile();
+                BufferedWriter bw = new BufferedWriter(new FileWriter(Journal.STATS_FILE_NAME));
+                bw.write("0;0;0;0;0;0;0");
+                bw.close();
+            }
+            BufferedReader br = new BufferedReader(new FileReader(Journal.STATS_FILE_NAME));
+            String tmp = br.readLine();
             split = tmp.split(";");
             int i = Integer.parseInt(split[entry.getMood().ordinal()]);
             split[entry.getMood().ordinal()] = String.valueOf(++i);
-            brs.close();
+            br.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
 
         try {
-            BufferedWriter wrs = new BufferedWriter(new FileWriter("Stats.txt"));
+            BufferedWriter wrs = new BufferedWriter(new FileWriter(Journal.STATS_FILE_NAME));
             wrs.write(String.valueOf(split[0]) + ";" + split[1] + ";" + split[2] + ";" + split[3] + ";" + split[4] + ";" + split[5] + ";" + split[6]);
             wrs.close();
         }
