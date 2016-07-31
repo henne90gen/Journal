@@ -27,6 +27,11 @@ public class Entry {
         m_mood = m;
     }
 
+    @Override
+    public String toString() {
+        return m_date.toString();
+    }
+
     public LocalDate getDate() {
         return m_date;
     }

@@ -37,7 +37,25 @@ public class EntryReader {
 
     public static Entry readLast() {
         Entry entry = new Entry();
-
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("Comments.txt"));
+            String line;
+            String[] lastLines = new String[3];
+            int lineCounter = 10;
+            while ((line = br.readLine()) != null) {
+                if (line.equalsIgnoreCase("--------------------------------------------------")) { lineCounter = 0; } else { lineCounter++; }
+                if (lineCounter == 1) {
+                    lastLines[0] = line;
+                } else if (lineCounter == 3) {
+                    lastLines[1] = line;
+                } else if (lineCounter == 5) {
+                    lastLines[2] = line;
+                }
+            }
+            entry = new Entry(getDate(lastLines[0]), lastLines[2], getMood(lastLines[1]));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return entry;
     }
 

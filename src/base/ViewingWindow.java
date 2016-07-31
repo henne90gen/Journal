@@ -9,159 +9,148 @@ import java.awt.event.ActionListener;
 
 public class ViewingWindow extends JFrame implements ListSelectionListener, ActionListener {
 
+    private static final String NEW_BUTTON = "New";
+    private static final String SEARCH_BUTTON = "Search";
+    private static final String RELOAD_BUTTON = "Reload";
+    private static final String SEARCH_TEXTFIELD = "Search text field";
+
     private Journal m_journal;
-//    public ArrayList<String> entries = new ArrayList<String>();
-//    public HashMap<Integer, String> entriesToSearch = new HashMap<Integer, String>();
-//    public String[] dates;
-	public JTextPane textPane = new JTextPane();
-	public JList<String> list = new JList<String>();
-	public JTextField searchBar = new JTextField();
-	public JButton searchButton = new JButton();
-	public JButton reload = new JButton();
+    private JTextPane textPane;
+    private JList<Entry> list;
+	private JTextField searchTF;
+	private JButton newBtn, searchBtn, reloadBtn;
 	
 	public ViewingWindow(Journal j) {
 		super("My First Application");
 		m_journal = j;
-		JFrame.setDefaultLookAndFeelDecorated(true);
-		
-		setContentPane(createContentPane());
-		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(700, 500);
-		setVisible(true);
 
-//        if (readComments()) {
-//            list.setListData();
-//            textPane.setText(m_journal.getEntries().get(0).getText());
-//        } else {
-//            textPane.setText("There was an error while reading the 'Comments.txt' file.");
-//        }
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setPreferredSize(new Dimension(700, 500));
+        setMinimumSize(new Dimension(700, 500));
+
+		add(createGUI());
+
+        pack();
+        setVisible(true);
+
+        updateUI();
 	}
+
+	public void updateUI() {
+        System.out.println("Updating UI");
+        Entry[] entries = new Entry[m_journal.getEntries().size()];
+        for (int i = 0; i < entries.length; i++) {
+            entries[i] = m_journal.getEntries().get(i);
+        }
+        list.setListData(entries);
+        list.setSelectedIndex(0);
+    }
 	
-	public JPanel createContentPane() {
-		// Main Panel:
+	public JPanel createGUI() {
+		// Panels
 		JPanel mainPanel = new JPanel();
-		mainPanel.setOpaque(true);
-		mainPanel.setSize(this.getWidth(), this.getHeight());
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
+
+        // New button
+        newBtn = new JButton(NEW_BUTTON);
+        newBtn.addActionListener(this);
+        newBtn.setActionCommand(NEW_BUTTON);
+        topPanel.add(newBtn);
+
+        // Search text field
+        searchTF = new JTextField();
+        searchTF.addActionListener(this);
+        searchTF.setActionCommand(SEARCH_TEXTFIELD);
+        searchTF.setToolTipText("Date format: dd.mm");
+        topPanel.add(searchTF);
+
+        // Search button
+        searchBtn = new JButton(SEARCH_BUTTON);
+        searchBtn.addActionListener(this);
+        searchBtn.setActionCommand(SEARCH_BUTTON);
+        topPanel.add(searchBtn);
+
+		// Reload button
+        reloadBtn = new JButton(RELOAD_BUTTON);
+		reloadBtn.addActionListener(this);
+        reloadBtn.setActionCommand(RELOAD_BUTTON);
+		topPanel.add(reloadBtn);
 		
-		// Layout:
-		GridBagLayout layout = new GridBagLayout();
-		GridBagConstraints gbcList = new GridBagConstraints();
-		GridBagConstraints gbcReload = new GridBagConstraints();
-		GridBagConstraints gbcSearch = new GridBagConstraints();
-		GridBagConstraints gbcText = new GridBagConstraints();
-		GridBagConstraints gbcButton = new GridBagConstraints();
-		mainPanel.setLayout(layout);
-		mainPanel.setPreferredSize(new Dimension(this.getWidth(), this.getHeight()));
-		
-		// Reload button:
-		reload.addActionListener(this);
-		reload.setText("Reload");
-		reload.setPreferredSize(new Dimension(20, 20));
-		gbcReload.fill = GridBagConstraints.BOTH;
-		gbcReload.gridx = 0;
-		gbcReload.gridy = 0;
-		mainPanel.add(reload, gbcReload);
-		
-		// List:
+
+        // List
+        list = new JList<>();
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setVisibleRowCount(2);
 		list.addListSelectionListener(this);
 		
 		JScrollPane listScrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		listScrollPane.setPreferredSize(new Dimension(130, 430));
-		gbcList.fill = GridBagConstraints.BOTH;
-		gbcList.gridx = 0;
-		gbcList.gridy = 1;
-		mainPanel.add(listScrollPane, gbcList);
+		bottomPanel.add(listScrollPane);
 		
-		// Searchbar:
-		searchBar.setPreferredSize(new Dimension(400, 20));
-		searchBar.setToolTipText("Datumsformat: DD.MM.JJJJ");
-		gbcSearch.fill = GridBagConstraints.BOTH;
-		gbcSearch.gridx = 1;
-		gbcSearch.gridy = 0;
-		mainPanel.add(searchBar, gbcSearch);
-		
-		// Searchbutton:
-		searchButton.setPreferredSize(new Dimension(20, 20));
-		searchButton.setText("Search");
-		searchButton.addActionListener(this);
-		gbcButton.fill = GridBagConstraints.BOTH;
-		gbcButton.gridx = 2;
-		gbcButton.gridy = 0;
-		mainPanel.add(searchButton, gbcButton);
-		
-		// Textfield:
-		gbcText.fill = GridBagConstraints.BOTH;
-		gbcText.gridwidth = 2;
-		gbcText.gridx = 1;
-		gbcText.gridy = 1;
+		// Text field
+        textPane = new JTextPane();
 		textPane.setEditable(false);
 		JScrollPane textScrollPane = new JScrollPane(textPane);
 		textScrollPane.setPreferredSize(new Dimension(500, 430));
-		mainPanel.add(textScrollPane, gbcText);
-		
+		bottomPanel.add(textScrollPane);
+
+		mainPanel.add(topPanel);
+        mainPanel.add(bottomPanel);
 		return mainPanel;
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		textPane.setText(m_journal.getEntries().get(list.getSelectedIndex()).getText());
+	    int selection = list.getSelectedIndex();
+	    if (selection == -1) {
+	        selection = 0;
+        }
+		textPane.setText(m_journal.getEntries().get(selection).getText());
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(searchButton)) {
-			if (checkDateFormat(searchBar.getText())) {
-				int index = getIndex(searchBar.getText());
+	    switch (e.getActionCommand()) {
+            case NEW_BUTTON:
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        NewEntryWindow window = new NewEntryWindow(m_journal);
+                        window.addWindowListener(m_journal);
+                    }
+                });
+                break;
+            case RELOAD_BUTTON:
+                updateUI();
+                break;
+            case SEARCH_BUTTON:
 
-//				textPane.setText(entriesToSearch.get(index));
-//				for (int i = 0; i < entries.size(); i++) {
-//					if (entries.get(i).equalsIgnoreCase(entriesToSearch.get(index))) {
-//						list.setSelectedIndex(i);
-//					}
-//				}
-				searchBar.setText("");
-			}
-		} else if (e.getSource().equals(reload)) {
-//			dates = null;
-//			entries = new ArrayList<String>();
-//			entriesToSearch = new HashMap<Integer, String>();
-//			readComments();
-		}
-	}
+                break;
+            case SEARCH_TEXTFIELD:
 
-    /*public boolean readComments() {
-        try {
-            int numDays = (countLines("Comments.txt") + 1) / 8;
-            //dates = new String[numDays];
-
-            BufferedReader br = new BufferedReader(new FileReader("Comments.txt"));
-            String line = br.readLine();
-            int lineCounter = 10;
-            int key = 0;
-            String date = "";
-
-            while (line != null) {
-                if (line.equalsIgnoreCase("--------------------------------------------------")) { lineCounter = 0; } else { lineCounter++; }
-                if (lineCounter == 1) {
-                    key = getKey(line);
-                    date = getDate(line);
-                } else if (lineCounter == 5) {
-                    entriesToSearch.put(key, line);
-                    entries.add(line);
-                    dates[entries.size() - 1] = date;
-                }
-                line = br.readLine();
-            }
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+                break;
         }
-        return true;
-    }*/
+/*
+if (checkDateFormat(searchTF.getText())) {
+int index = getIndex(searchTF.getText());
+
+textPane.setText(entriesToSearch.get(index));
+for (int i = 0; i < entries.size(); i++) {
+if (entries.get(i).equalsIgnoreCase(entriesToSearch.get(index))) {
+list.setSelectedIndex(i);
+}
+}
+searchTF.setText("");
+}
+dates = null;
+entries = new ArrayList<String>();
+entriesToSearch = new HashMap<Integer, String>();
+readComments();
+*/
+    }
 
 	private int getIndex(String date) {
 		String index = "";

@@ -16,8 +16,15 @@ This day was awesome.
 Generic text to test the programm.
 
 --------------------------------------------------
-Fri Jul 29 23:44:53 CEST 2016
+Sun Jul 31 14:47:44 CEST 2016
 
-This day was good.
+This day was great.
 
-edf
+ASD
+
+--------------------------------------------------
+Sun Jul 31 15:08:32 CEST 2016
+
+This day was great.
+
+What??

@@ -1,12 +1,14 @@
 package base;
 
 import javax.swing.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 
-public class Journal {
+public class Journal implements WindowListener {
 
     private ArrayList<Entry> m_entries = new ArrayList<Entry>();
-    private NewEntryWindow m_window;
+    private ViewingWindow m_window;
 
     public Journal() {
 
@@ -22,16 +24,51 @@ public class Journal {
         Journal tmp = this;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new ViewingWindow(tmp);
+                m_window = new ViewingWindow(tmp);
             }
         });
     }
 
-    public ArrayList<Entry> getEntries() {
+    ArrayList<Entry> getEntries() {
         return m_entries;
     }
 
 	public static void main(String[] args) {
 		new Journal();
 	}
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        m_window.updateUI();
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
+    }
 }
