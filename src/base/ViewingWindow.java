@@ -50,6 +50,7 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         dateList.setListData(entries);
         dateList.setSelectedIndex(0);
         searchTF.setText("");
+        dateList.requestFocus();
     }
 	
 	public JPanel createGUI() {
