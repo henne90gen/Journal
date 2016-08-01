@@ -39,6 +39,21 @@ public class Journal implements WindowListener {
                 }
             }
         }
+
+        return getArrayFromList(list);
+    }
+
+    public Entry[] searchForString(String text) {
+        ArrayList<Entry> list = new ArrayList<>();
+        for (int i = 0; i < entries.size(); i++) {
+            if (entries.get(i).getText().toLowerCase().contains(text.toLowerCase())) {
+                list.add(entries.get(i));
+            }
+        }
+        return getArrayFromList(list);
+    }
+
+    public Entry[] getArrayFromList(ArrayList<Entry> list) {
         Entry[] result = new Entry[list.size()];
         for (int i = 0; i < list.size(); i++) {
             result[i] = list.get(i);

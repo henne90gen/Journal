@@ -16,12 +16,15 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
     private static final String NEW_BUTTON = "New";
     private static final String SEARCH_BUTTON = "Search";
     private static final String RELOAD_BUTTON = "Reload";
+    private static final String SEARCH_RADIO_BUTTON = "Search radio button";
+    private static final String NOTHING_TO_DISPLAY = "Nothing to display";
 
     private Journal journal;
     private JTextPane textPane;
     private JList<Entry> dateList;
 	private JTextField searchTF;
 	private JButton newBtn, searchBtn, reloadBtn;
+    JRadioButton dateSearch, stringSearch;
 	
 	public ViewingWindow(Journal journal) {
 		super("My First Application");
@@ -67,9 +70,19 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         topPanel.add(newBtn);
 
 		// Search text
-        JLabel searchL = new JLabel("Type in a date:");
+        ButtonGroup group = new ButtonGroup();
+        dateSearch = new JRadioButton("Date");
+        dateSearch.setSelected(true);
+        dateSearch.setActionCommand(SEARCH_RADIO_BUTTON);
+        dateSearch.addActionListener(this);
+        group.add(dateSearch);
+        stringSearch = new JRadioButton("String");
+        stringSearch.setActionCommand(SEARCH_RADIO_BUTTON);
+        stringSearch.addActionListener(this);
+        group.add(stringSearch);
         topPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        topPanel.add(searchL);
+        topPanel.add(dateSearch);
+        topPanel.add(stringSearch);
 
         // Search text field
         searchTF = new JTextField();
@@ -77,7 +90,7 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         searchTF.addActionListener(this);
         searchTF.addKeyListener(new KeyListener() {
             @Override public void keyTyped(KeyEvent e) {
-                if (!Character.isDigit(e.getKeyChar())) {
+                if (!Character.isDigit(e.getKeyChar()) && dateSearch.isSelected()) {
                     e.consume();
                 }
             }
@@ -99,7 +112,6 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
 		reloadBtn.addActionListener(this);
         reloadBtn.setActionCommand(RELOAD_BUTTON);
 		topPanel.add(reloadBtn);
-		
 
         // List
         dateList = new JList<>();
@@ -145,34 +157,60 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
                 updateUI();
                 break;
             case SEARCH_BUTTON:
-                // Adding dot after day and month automatically
-                if (searchTF.getText().length() == 2 || searchTF.getText().length() == 5) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            searchTF.setText(searchTF.getText() + ".");
-                        }
-                    });
-                    break;
-                }
-
-                // Search
-                String[] tmp = searchTF.getText().split("\\.");
-                int[] date = {-1, -1, -1};
-                if (tmp.length == 1 && !tmp[0].equalsIgnoreCase("")) {
-                    date[0] = Integer.parseInt(tmp[0]);
-                } else if (tmp.length == 2) {
-                    date[0] = Integer.parseInt(tmp[0]);
-                    date[1] = Integer.parseInt(tmp[1]);
-                } else if (tmp.length == 3) {
-                    date[0] = Integer.parseInt(tmp[0]);
-                    date[1] = Integer.parseInt(tmp[1]);
-                    date[2] = Integer.parseInt(tmp[2]);
-                }
-                dateList.setListData(journal.searchForDate(date[1], date[0], date[2]));
-                dateList.setSelectedIndex(0);
+                if (dateSearch.isSelected())
+                    searchDate();
+                else if (stringSearch.isSelected())
+                    searchString();
+                break;
+            case SEARCH_RADIO_BUTTON:
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        searchTF.setText("");
+                        updateUI();
+                    }
+                });
                 break;
         }
+    }
+
+    private void searchDate() {
+        // Adding dot after day and month automatically
+        if (searchTF.getText().length() == 2 || searchTF.getText().length() == 5) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    searchTF.setText(searchTF.getText() + ".");
+                }
+            });
+            return;
+        }
+
+        // Search
+        String[] tmp = searchTF.getText().split("\\.");
+        int[] date = {-1, -1, -1};
+        if (tmp.length == 1 && !tmp[0].equalsIgnoreCase("")) {
+            date[0] = Integer.parseInt(tmp[0]);
+        } else if (tmp.length == 2) {
+            date[0] = Integer.parseInt(tmp[0]);
+            date[1] = Integer.parseInt(tmp[1]);
+        } else if (tmp.length == 3) {
+            date[0] = Integer.parseInt(tmp[0]);
+            date[1] = Integer.parseInt(tmp[1]);
+            date[2] = Integer.parseInt(tmp[2]);
+        }
+        Entry[] es = journal.searchForDate(date[1], date[0], date[2]);
+        dateList.setListData(es);
+        if (es.length == 0) {
+            textPane.setText(NOTHING_TO_DISPLAY);
+        } else {
+            dateList.setSelectedIndex(0);
+        }
+    }
+
+    private void searchString() {
+        dateList.setListData(journal.searchForString(searchTF.getText()));
+        dateList.setSelectedIndex(0);
     }
 
     @Override

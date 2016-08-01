@@ -1,6 +1,7 @@
 package base;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class EntryWriter {
@@ -49,5 +50,9 @@ public class EntryWriter {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void writeToFile(ArrayList<Entry> entries, String filePath) {
+
     }
 }
