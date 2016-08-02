@@ -9,6 +9,8 @@ import java.time.LocalDate;
 
 public class NewEntryWindow extends JFrame implements ActionListener {
 
+    public static final String WRITE_BUTTON = "Save";
+
     private JTextArea comment;
     private JRadioButton[] feelings;
     private Journal journal;
@@ -59,7 +61,7 @@ public class NewEntryWindow extends JFrame implements ActionListener {
 
         textPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
-        JButton writeBtn = new JButton("Write to database");
+        JButton writeBtn = new JButton(WRITE_BUTTON);
         writeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         writeBtn.addActionListener(this);
         textPanel.add(writeBtn);
