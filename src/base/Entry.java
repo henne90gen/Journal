@@ -12,54 +12,31 @@ public class Entry {
         Awesome, Great, Good, Undecided, Bad, Poor, Waste
     }
 
-    private LocalDate date;
-    private String entry;
-    private Mood mood;
+    private int id;
+    public LocalDate date;
+    public String comment;
+    public Mood mood;
 
     public Entry() {
         date = LocalDate.now();
-        entry = "";
+        comment = "";
         mood = Mood.Undecided;
     }
 
-    public Entry(LocalDate date, String entry, Mood mood) {
+    public Entry(int id, LocalDate date, Mood mood, String comment) {
+        this.id = id;
         this.date = date;
-        this.entry = entry;
+        this.comment = comment;
         this.mood = mood;
     }
 
     @Override
     public String toString() {
         DateTimeFormatter f = DateTimeFormatter.ofPattern("dd.MM.YYYY");
-        return date.format(f);
+        return id + " - " + date.format(f);
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate d) {
-        date = d;
-    }
-
-    public boolean setDate(String d) {
-
-        return false;
-    }
-
-    public String getText() {
-        return entry;
-    }
-
-    public void setText(String t) {
-        entry = t;
-    }
-
-    public Mood getMood() {
-        return mood;
-    }
-
-    public void setMood(Mood m) {
-        mood = m;
+    public int getID() {
+        return id;
     }
 }

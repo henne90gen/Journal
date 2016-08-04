@@ -10,9 +10,19 @@ import java.util.ArrayList;
 
 public class EntryReader {
 
+    /*  Storage format
+
+        Stats
+        Entries {
+            ID
+            Date
+            Mood
+            Comment
+        }
+     */
+
     public static ArrayList<Entry> read() {
         ArrayList<Entry> entries = new ArrayList<>();
-
         try {
             File f = new File(Journal.COMMENTS_FILE_NAME);
             if (!f.exists()) {
@@ -20,20 +30,14 @@ public class EntryReader {
                 return entries;
             }
             BufferedReader br = new BufferedReader(new FileReader(Journal.COMMENTS_FILE_NAME));
-            int lineCounter = 10;
-            LocalDate date = LocalDate.now();
-            Entry.Mood mood = Entry.Mood.Undecided;
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.equalsIgnoreCase("--------------------------------------------------")) { lineCounter = 0; } else { lineCounter++; }
-                if (lineCounter == 1) {
-                    date = getDate(line);
-                } else if (lineCounter == 3) {
-                    mood = getMood(line);
-                } else if (lineCounter == 5) {
-                    Entry e = new Entry(date, line, mood);
-                    entries.add(e);
-                }
+            String line = br.readLine();
+
+            while(line != null) {
+                int id = Integer.parseInt(line);
+                LocalDate date = getDate(br.readLine());
+                Entry.Mood mood = getMood(br.readLine());
+                entries.add(new Entry(id, date, mood, br.readLine()));
+                line = br.readLine();
             }
             br.close();
         } catch (IOException e) {
@@ -46,20 +50,17 @@ public class EntryReader {
         Entry entry = new Entry();
         try {
             BufferedReader br = new BufferedReader(new FileReader(Journal.COMMENTS_FILE_NAME));
-            String line;
-            String[] lastLines = new String[3];
-            int lineCounter = 10;
-            while ((line = br.readLine()) != null) {
-                if (line.equalsIgnoreCase("--------------------------------------------------")) { lineCounter = 0; } else { lineCounter++; }
-                if (lineCounter == 1) {
-                    lastLines[0] = line;
-                } else if (lineCounter == 3) {
-                    lastLines[1] = line;
-                } else if (lineCounter == 5) {
-                    lastLines[2] = line;
-                }
+            String line = br.readLine();
+            String[] lastLines = new String[4];
+            while(line != null) {
+                lastLines[0] = line;
+                lastLines[1] = br.readLine();
+                lastLines[2] = br.readLine();
+                lastLines[3] = br.readLine();
+                line = br.readLine();
             }
-            entry = new Entry(getDate(lastLines[0]), lastLines[2], getMood(lastLines[1]));
+            br.close();
+            entry = new Entry(Integer.parseInt(lastLines[0]), getDate(lastLines[1]), getMood(lastLines[2]), lastLines[3]);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,27 +68,28 @@ public class EntryReader {
     }
 
     private static LocalDate getDate(String line) {
-        DateTimeFormatter f = DateTimeFormatter.ofPattern("MMM dd HH:mm:ss zz yyyy");
-        return LocalDate.parse(line.substring(4), f);
+        DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return LocalDate.parse(line, f);
     }
 
-    private static Entry.Mood getMood(String line) {
-        String[] tmp = line.split(" ");
-        switch (tmp[3]) {
-            case "awesome.":
+    public static Entry.Mood getMood(String line) {
+        switch (line) {
+            case "Awesome":
                 return Entry.Mood.Awesome;
-            case "great.":
+            case "Great":
                 return Entry.Mood.Great;
-            case "good.":
+            case "Good":
                 return Entry.Mood.Good;
-            case "bad.":
+            case "Undecided":
+                return Entry.Mood.Undecided;
+            case "Bad":
                 return Entry.Mood.Bad;
-            case "poor.":
+            case "Poor":
                 return Entry.Mood.Poor;
-            case "waste.":
+            case "Waste":
                 return Entry.Mood.Waste;
             default:
-                return Entry.Mood.Undecided;
+                return null;
         }
     }
 }

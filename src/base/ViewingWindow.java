@@ -10,12 +10,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 
 public class ViewingWindow extends JFrame implements ListSelectionListener, ActionListener, DocumentListener {
 
     private static final String NEW_BUTTON = "New";
     private static final String SEARCH_BUTTON = "Search";
-    private static final String RELOAD_BUTTON = "Reload";
+    private static final String SAVE_BUTTON = "Save";
     private static final String SEARCH_RADIO_BUTTON = "Search radio button";
     private static final String NOTHING_TO_DISPLAY = "Nothing to display";
 
@@ -43,9 +44,9 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
 	}
 
 	public void updateUI() {
-        Entry[] entries = new Entry[journal.getEntries().size()];
+        Entry[] entries = new Entry[journal.entries.size()];
         for (int i = 0; i < entries.length; i++) {
-            entries[i] = journal.getEntries().get(i);
+            entries[i] = journal.entries.get(i);
         }
         dateList.setListData(entries);
         dateList.setSelectedIndex(0);
@@ -70,20 +71,20 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         newBtn.setActionCommand(NEW_BUTTON);
         topPanel.add(newBtn);
 
-		// Search text
+		// Search type
         ButtonGroup group = new ButtonGroup();
-        dateSearch = new JRadioButton("Date");
-        dateSearch.setSelected(true);
-        dateSearch.setActionCommand(SEARCH_RADIO_BUTTON);
-        dateSearch.addActionListener(this);
-        group.add(dateSearch);
         stringSearch = new JRadioButton("String");
+        stringSearch.setSelected(true);
         stringSearch.setActionCommand(SEARCH_RADIO_BUTTON);
         stringSearch.addActionListener(this);
         group.add(stringSearch);
+        dateSearch = new JRadioButton("Date");
+        dateSearch.setActionCommand(SEARCH_RADIO_BUTTON);
+        dateSearch.addActionListener(this);
+        group.add(dateSearch);
         topPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        topPanel.add(dateSearch);
         topPanel.add(stringSearch);
+        topPanel.add(dateSearch);
 
         // Search text field
         searchTF = new JTextField();
@@ -109,9 +110,9 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         topPanel.add(searchBtn);
 
 		// Reload button
-        reloadBtn = new JButton(RELOAD_BUTTON);
+        reloadBtn = new JButton(SAVE_BUTTON);
 		reloadBtn.addActionListener(this);
-        reloadBtn.setActionCommand(RELOAD_BUTTON);
+        reloadBtn.setActionCommand(SAVE_BUTTON);
 		topPanel.add(reloadBtn);
 
         // List
@@ -139,7 +140,7 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 	    if (dateList.getSelectedIndex() != -1) {
-            textPane.setText(dateList.getSelectedValue().getText());
+            textPane.setText(dateList.getSelectedValue().comment);
         }
 	}
 
@@ -154,8 +155,13 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
                     }
                 });
                 break;
-            case RELOAD_BUTTON:
-                updateUI();
+            case SAVE_BUTTON:
+                JFileChooser fc = new JFileChooser();
+                fc.setCurrentDirectory(new File("./"));
+                int returnVal = fc.showSaveDialog(ViewingWindow.this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    EntryWriter.writeToFile(journal.entries, fc.getSelectedFile().getPath());
+                }
                 break;
             case SEARCH_BUTTON:
                 if (dateSearch.isSelected())

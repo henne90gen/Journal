@@ -7,33 +7,26 @@ import java.util.ArrayList;
 
 public class Journal implements WindowListener {
 
-    public static final String COMMENTS_FILE_NAME = "Comments.txt";
-    public static final String STATS_FILE_NAME = "Stats.txt";
+    public static final String COMMENTS_FILE_NAME = "comments";
 
-    private ArrayList<Entry> entries = new ArrayList<Entry>();
+    public ArrayList<Entry> entries = new ArrayList<Entry>();
     private ViewingWindow window;
+    private int lastEntryID = 0;
 
     public Journal() {
         entries = EntryReader.read();
+        lastEntryID = entries.get(entries.size()-1).getID();
 
         Journal tmp = this;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                window = new ViewingWindow(tmp);
-            }
-        });
-    }
-
-    public ArrayList<Entry> getEntries() {
-        return entries;
+        SwingUtilities.invokeLater(() -> window = new ViewingWindow(tmp));
     }
 
     public Entry[] searchForDate(int day, int month, int year) {
         ArrayList<Entry> list = new ArrayList<>();
         for (int i = 0; i < entries.size(); i++) {
-            if (day == -1 || entries.get(i).getDate().getDayOfMonth() == day) {
-                if (month == -1 || entries.get(i).getDate().getMonthValue() == month) {
-                    if (year == -1 || entries.get(i).getDate().getYear() == year) {
+            if (day == -1 || entries.get(i).date.getDayOfMonth() == day) {
+                if (month == -1 || entries.get(i).date.getMonthValue() == month) {
+                    if (year == -1 || entries.get(i).date.getYear() == year) {
                         list.add(entries.get(i));
                     }
                 }
@@ -45,9 +38,17 @@ public class Journal implements WindowListener {
 
     public Entry[] searchForString(String text) {
         ArrayList<Entry> list = new ArrayList<>();
-        for (int i = 0; i < entries.size(); i++) {
-            if (entries.get(i).getText().toLowerCase().contains(text.toLowerCase())) {
-                list.add(entries.get(i));
+        if (EntryReader.getMood(text) != null) {
+            for (int i = 0; i < entries.size(); i++) {
+                if (entries.get(i).mood == EntryReader.getMood(text)) {
+                    list.add(entries.get(i));
+                }
+            }
+        } else {
+            for (int i = 0; i < entries.size(); i++) {
+                if (entries.get(i).comment.toLowerCase().contains(text.toLowerCase())) {
+                    list.add(entries.get(i));
+                }
             }
         }
         return getArrayFromList(list);
@@ -59,6 +60,10 @@ public class Journal implements WindowListener {
             result[i] = list.get(i);
         }
         return result;
+    }
+
+    public int getNextID() {
+        return ++lastEntryID;
     }
 
 	public static void main(String[] args) {

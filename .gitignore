@@ -217,5 +217,4 @@ pip-log.txt
 .idea/
 /Journal.iml
 out/
-/Comments.txt
-/Stats.txt
+/comments

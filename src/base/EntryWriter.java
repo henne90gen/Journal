@@ -1,58 +1,59 @@
 package base;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class EntryWriter {
 
-    public static void write(Entry entry) {
-        String feeling = "This day was " + entry.getMood().toString().toLowerCase() + ".";
+    /*  Storage format
 
+        Stats
+        Entries {
+            ID
+            Date
+            Mood
+            Comment
+        }
+     */
+
+    public static void write(Entry entry) {
         try {
             File f = new File(Journal.COMMENTS_FILE_NAME);
             if (!f.exists()) {
                 f.createNewFile();
             }
-            BufferedWriter writer = new BufferedWriter(new FileWriter(Journal.COMMENTS_FILE_NAME, true));
-            writer.write("\n\n--------------------------------------------------\n" + new Date() + "\n" + "\n" + feeling + "\n" + "\n" + entry.getText());
-            writer.close();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String[] split = null;
-        try {
-            File f = new File(Journal.STATS_FILE_NAME);
-            if (!f.exists()) {
-                f.createNewFile();
-                BufferedWriter bw = new BufferedWriter(new FileWriter(Journal.STATS_FILE_NAME));
-                bw.write("0;0;0;0;0;0;0");
-                bw.close();
-            }
-            BufferedReader br = new BufferedReader(new FileReader(Journal.STATS_FILE_NAME));
-            String tmp = br.readLine();
-            split = tmp.split(";");
-            int i = Integer.parseInt(split[entry.getMood().ordinal()]);
-            split[entry.getMood().ordinal()] = String.valueOf(++i);
-            br.close();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            BufferedWriter wrs = new BufferedWriter(new FileWriter(Journal.STATS_FILE_NAME));
-            wrs.write(String.valueOf(split[0]) + ";" + split[1] + ";" + split[2] + ";" + split[3] + ";" + split[4] + ";" + split[5] + ";" + split[6]);
-            wrs.close();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(Journal.COMMENTS_FILE_NAME, true));
+            bw.write(entry.getID() + "\n");
+            bw.write(entry.date.toString() + "\n");
+            bw.write(entry.mood.toString() + "\n");
+            bw.write(entry.comment + "\n");
+            bw.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void writeToFile(ArrayList<Entry> entries, String filePath) {
+    public static void writeToFile(ArrayList<Entry> entries, String filePath) {
+        try {
+            File f = new File(filePath);
+            if (!f.exists()) {
+                f.createNewFile();
+            }
 
+            BufferedWriter bw = new BufferedWriter(new FileWriter(filePath));
+            for (int i = 0; i < entries.size(); i++) {
+                bw.write(entries.get(i).getID() + "\n");
+                bw.write(entries.get(i).date.toString() + "\n");
+                bw.write(entries.get(i).mood.toString() + "\n");
+                bw.write(entries.get(i).comment + "\n");
+            }
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
