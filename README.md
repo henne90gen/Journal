@@ -5,3 +5,6 @@ Now to some more technical stuff. When I first developed this app I was pretty i
 So what other things can you do with this application? Well, you can view all the past entries. It is also possible to search for specific dates or specific text within all the entries.
 
 Being able to edit entries would be a very nice feature, but that has to wait just a little longer for it's implementation.
+
+This project uses the Apache Derby database as the primary storage solution for all the entries.
+https://db.apache.org/derby/derby_downloads.html
