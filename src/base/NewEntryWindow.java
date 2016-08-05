@@ -82,9 +82,10 @@ public class NewEntryWindow extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        EntryWriter.write(new Entry(journal.getNextID(), LocalDate.now(), getSelectedMood(), comment.getText()));
+        Entry entry = new Entry(journal.getNextID(), LocalDate.now(), getSelectedMood(), comment.getText());
 
-        journal.entries.add(EntryReader.readLast());
+        journal.writeToDB(entry);
+        journal.entries.add(entry);
 
         dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }
