@@ -3,19 +3,16 @@ package base;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Created by henne on 29.07.16.
- */
-public class Entry {
+class Entry {
 
-    public enum Mood {
+    enum Mood {
         Awesome, Great, Good, Undecided, Bad, Poor, Waste
     }
 
     private int id;
-    public LocalDate date;
-    public String comment;
-    public Mood mood;
+    LocalDate date;
+    String comment;
+    Mood mood;
 
     public Entry() {
         date = LocalDate.now();
@@ -23,7 +20,7 @@ public class Entry {
         mood = Mood.Undecided;
     }
 
-    public Entry(int id, LocalDate date, Mood mood, String comment) {
+    Entry(int id, LocalDate date, Mood mood, String comment) {
         this.id = id;
         this.date = date;
         this.comment = comment;
@@ -36,7 +33,7 @@ public class Entry {
         return id + " - " + date.format(f);
     }
 
-    public int getID() {
+    int getID() {
         return id;
     }
 }

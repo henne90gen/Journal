@@ -12,24 +12,27 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 
-public class ViewingWindow extends JFrame implements ListSelectionListener, ActionListener, DocumentListener {
+class ViewingWindow extends JFrame implements ListSelectionListener, ActionListener, DocumentListener {
 
     private static final String NEW_BUTTON = "New";
-    private static final String SEARCH_BUTTON = "Search";
+    private static final String EDIT_BUTTON = "Edit";
     private static final String SAVE_BUTTON = "Save";
-    private static final String LOAD_BUTTON = "Load";
+    private static final String DELETE_BUTTON = "Delete";
+    private static final String SEARCH_BUTTON = "Search";
+    private static final String EXPORT_BUTTON = "Export";
+    private static final String IMPORT_BUTTON = "Import";
     private static final String SEARCH_RADIO_BUTTON = "Search radio button";
     private static final String NOTHING_TO_DISPLAY = "Nothing to display";
     private static final String LOADING_APPLICATION = "Loading database";
 
     private Journal journal;
     private JTextPane commentTP;
-    private JList<Entry> dateList;
+    JList<Entry> dateList;
 	private JTextField searchTF;
-	private JButton newBtn, searchBtn, saveBtn, loadBtn;
+	private JButton newBtn, searchBtn, exportBtn, importBtn, editBtn, deleteBtn;
     private JRadioButton dateSearchRB, stringSearchRB;
 	
-	public ViewingWindow(Journal journal) {
+	ViewingWindow(Journal journal) {
 		super("My First Application");
 		this.journal = journal;
 
@@ -39,20 +42,17 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         addWindowListener(journal);
         setVisible(true);
 
-		add(createGUI());
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(createSearchPanel());
+        panel.add(createShowPanel());
+        add(panel);
 
         pack();
 	}
 
-	public void updateUI() {
-	    newBtn.setEnabled(true);
-	    searchBtn.setEnabled(true);
-	    loadBtn.setEnabled(true);
-	    saveBtn.setEnabled(true);
-
-        stringSearchRB.setEnabled(true);
-        dateSearchRB.setEnabled(true);
-        searchTF.setEnabled(true);
+	void updateUI() {
+        setUIEnabled(true);
 
 	    commentTP.setText("");
         Entry[] entries = new Entry[journal.entries.size()];
@@ -64,26 +64,34 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         searchTF.setText("");
         dateList.requestFocus();
     }
-	
-	public JPanel createGUI() {
-		// Panels
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-        topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.X_AXIS));
-        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+    void setUIEnabled(boolean enabled) {
+        newBtn.setEnabled(enabled);
+        editBtn.setEnabled(enabled);
+        deleteBtn.setEnabled(enabled);
+        searchBtn.setEnabled(enabled);
+        importBtn.setEnabled(enabled);
+        exportBtn.setEnabled(enabled);
+
+        stringSearchRB.setEnabled(enabled);
+        dateSearchRB.setEnabled(enabled);
+        searchTF.setEnabled(enabled);
+        dateList.setEnabled(enabled);
+    }
+
+	JPanel createSearchPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // New button
         newBtn = new JButton(NEW_BUTTON);
         newBtn.addActionListener(this);
         newBtn.setActionCommand(NEW_BUTTON);
         newBtn.setEnabled(false);
-        topPanel.add(newBtn);
+        panel.add(newBtn);
 
-		// Search type
+        // Search type
         ButtonGroup group = new ButtonGroup();
         // String search
         stringSearchRB = new JRadioButton("String");
@@ -98,9 +106,9 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         dateSearchRB.addActionListener(this);
         dateSearchRB.setEnabled(false);
         group.add(dateSearchRB);
-        topPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-        topPanel.add(stringSearchRB);
-        topPanel.add(dateSearchRB);
+        panel.add(Box.createRigidArea(new Dimension(5, 0)));
+        panel.add(stringSearchRB);
+        panel.add(dateSearchRB);
 
         // Search text field
         searchTF = new JTextField();
@@ -118,51 +126,78 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
         });
         searchTF.getDocument().addDocumentListener(this);
         searchTF.setToolTipText("Date format: mm.dd.yyyy");
-        topPanel.add(searchTF);
+        panel.add(searchTF);
 
         // Search button
         searchBtn = new JButton(SEARCH_BUTTON);
         searchBtn.addActionListener(this);
         searchBtn.setActionCommand(SEARCH_BUTTON);
         searchBtn.setEnabled(false);
-        topPanel.add(searchBtn);
+        panel.add(searchBtn);
 
         // Load button
-        loadBtn = new JButton(LOAD_BUTTON);
-        loadBtn.addActionListener(this);
-        loadBtn.setActionCommand(LOAD_BUTTON);
-        loadBtn.setEnabled(false);
-        topPanel.add(loadBtn);
+        importBtn = new JButton(IMPORT_BUTTON);
+        importBtn.addActionListener(this);
+        importBtn.setActionCommand(IMPORT_BUTTON);
+        importBtn.setEnabled(false);
+        panel.add(importBtn);
 
-		// Save button
-        saveBtn = new JButton(SAVE_BUTTON);
-		saveBtn.addActionListener(this);
-        saveBtn.setActionCommand(SAVE_BUTTON);
-        saveBtn.setEnabled(false);
-		topPanel.add(saveBtn);
+        // Save button
+        exportBtn = new JButton(EXPORT_BUTTON);
+        exportBtn.addActionListener(this);
+        exportBtn.setActionCommand(EXPORT_BUTTON);
+        exportBtn.setEnabled(false);
+        panel.add(exportBtn);
+
+	    return panel;
+    }
+
+    JPanel createShowPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // List
         dateList = new JList<>();
-		dateList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		dateList.setVisibleRowCount(2);
-		dateList.addListSelectionListener(this);
-		
-		JScrollPane listScrollPane = new JScrollPane(dateList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		listScrollPane.setPreferredSize(new Dimension(130, 430));
-		bottomPanel.add(listScrollPane);
-		
-		// Text field
-        commentTP = new JTextPane();
-		commentTP.setEditable(false);
-        commentTP.setText(LOADING_APPLICATION);
-		JScrollPane textScrollPane = new JScrollPane(commentTP);
-		textScrollPane.setPreferredSize(new Dimension(500, 430));
-		bottomPanel.add(textScrollPane);
+        dateList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        dateList.setVisibleRowCount(2);
+        dateList.addListSelectionListener(this);
+        JScrollPane listScrollPane = new JScrollPane(dateList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        listScrollPane.setPreferredSize(new Dimension(130, 430));
+        panel.add(listScrollPane);
 
-		mainPanel.add(topPanel);
-        mainPanel.add(bottomPanel);
-		return mainPanel;
-	}
+        JPanel commentPanel = new JPanel();
+        commentPanel.setLayout(new BoxLayout(commentPanel, BoxLayout.Y_AXIS));
+        JPanel commentBtnPanel = new JPanel();
+        commentBtnPanel.setLayout(new BoxLayout(commentBtnPanel, BoxLayout.X_AXIS));
+
+        // Edit button
+        editBtn = new JButton(EDIT_BUTTON);
+        editBtn.addActionListener(this);
+        editBtn.setActionCommand(EDIT_BUTTON);
+        editBtn.setEnabled(false);
+        commentBtnPanel.add(editBtn);
+
+        // Delete button
+        deleteBtn = new JButton(DELETE_BUTTON);
+        deleteBtn.addActionListener(this);
+        deleteBtn.setActionCommand(DELETE_BUTTON);
+        deleteBtn.setEnabled(false);
+        commentBtnPanel.add(deleteBtn);
+        commentBtnPanel.add(Box.createGlue());
+        commentPanel.add(commentBtnPanel);
+
+        // Text field
+        commentTP = new JTextPane();
+        commentTP.setEditable(false);
+        commentTP.setText(LOADING_APPLICATION);
+        JScrollPane textScrollPane = new JScrollPane(commentTP);
+        textScrollPane.setPreferredSize(new Dimension(500, 430));
+        commentPanel.add(textScrollPane);
+        panel.add(commentPanel);
+
+        return panel;
+    }
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
@@ -180,7 +215,27 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
                     window.addWindowListener(journal);
                 });
                 break;
-            case SAVE_BUTTON: {
+            case EDIT_BUTTON:
+                setUIEnabled(false);
+                editBtn.setEnabled(true);
+                commentTP.setEditable(true);
+                editBtn.setText(SAVE_BUTTON);
+                editBtn.setActionCommand(SAVE_BUTTON);
+                break;
+            case SAVE_BUTTON:
+                setUIEnabled(true);
+                commentTP.setEditable(false);
+                editBtn.setText(EDIT_BUTTON);
+                editBtn.setActionCommand(EDIT_BUTTON);
+                int index = dateList.getSelectedIndex();
+                dateList.getSelectedValue().comment = commentTP.getText();
+                journal.edit(dateList.getSelectedValue());
+                dateList.setSelectedIndex(index);
+                break;
+            case DELETE_BUTTON:
+                journal.delete(dateList.getSelectedValue());
+                break;
+            case EXPORT_BUTTON: {
                 JFileChooser fc = new JFileChooser();
                 fc.setCurrentDirectory(new File("./"));
                 int returnVal = fc.showSaveDialog(ViewingWindow.this);
@@ -189,7 +244,7 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
                 }
             }
                 break;
-            case LOAD_BUTTON: {
+            case IMPORT_BUTTON: {
                 JFileChooser fc = new JFileChooser();
                 fc.setCurrentDirectory(new File("./"));
                 int returnVal = fc.showOpenDialog(ViewingWindow.this);
@@ -206,12 +261,9 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
                     searchString();
                 break;
             case SEARCH_RADIO_BUTTON:
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        searchTF.setText("");
-                        updateUI();
-                    }
+                SwingUtilities.invokeLater(() -> {
+                    searchTF.setText("");
+                    updateUI();
                 });
                 break;
         }
@@ -220,16 +272,11 @@ public class ViewingWindow extends JFrame implements ListSelectionListener, Acti
     private void searchDate() {
         // Adding dot after day and month automatically
         if (searchTF.getText().length() == 2 || searchTF.getText().length() == 5) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    searchTF.setText(searchTF.getText() + ".");
-                }
-            });
+            SwingUtilities.invokeLater(() -> searchTF.setText(searchTF.getText() + "."));
             return;
         }
 
-        // Search
+        // Getting date from searchTF
         String[] tmp = searchTF.getText().split("\\.");
         int[] date = {-1, -1, -1};
         if (tmp.length == 1 && !tmp[0].equalsIgnoreCase("")) {

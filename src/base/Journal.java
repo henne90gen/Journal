@@ -8,14 +8,15 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Journal implements WindowListener {
 
-    public static final String DB = "jdbc:derby:journal;create=true";
+    private static final String DB = "jdbc:derby:journal;create=true";
 
-    public ArrayList<Entry> entries = new ArrayList<Entry>();
+    ArrayList<Entry> entries = new ArrayList<Entry>();
 
-    public Connection dbConnection;
+    private Connection dbConnection;
     private Thread initThread;
     private ViewingWindow window;
     private int lastEntryID = 0;
@@ -24,7 +25,7 @@ public class Journal implements WindowListener {
         SwingUtilities.invokeLater(() -> window = new ViewingWindow(this));
     }
 
-    public void init() {
+    private void init() {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             dbConnection = DriverManager.getConnection(Journal.DB);
@@ -33,9 +34,7 @@ public class Journal implements WindowListener {
                 dbConnection.createStatement().execute("create table entries(id int, date date, mood varchar(10), text clob)");
             }
             entries = readFromDB();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         if (entries.size() > 0) {
@@ -44,13 +43,40 @@ public class Journal implements WindowListener {
         window.updateUI();
     }
 
-    public Entry[] searchForDate(int day, int month, int year) {
-        ArrayList<Entry> list = new ArrayList<>();
+    public void edit(Entry entry) {
+        try {
+            Statement s = dbConnection.createStatement();
+            s.execute("update entries set text='" + entry.comment + "' where id=" + entry.getID());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        window.updateUI();
+    }
+
+    void delete(Entry entry) {
         for (int i = 0; i < entries.size(); i++) {
-            if (day == -1 || entries.get(i).date.getDayOfMonth() == day) {
-                if (month == -1 || entries.get(i).date.getMonthValue() == month) {
-                    if (year == -1 || entries.get(i).date.getYear() == year) {
-                        list.add(entries.get(i));
+            if (entries.get(i).getID() == entry.getID()) {
+                entries.remove(i);
+                break;
+            }
+        }
+        lastEntryID = entries.get(entries.size()-1).getID();
+        try {
+            Statement s = dbConnection.createStatement();
+            s.execute("delete from entries where id=" + entry.getID());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        window.updateUI();
+    }
+
+    Entry[] searchForDate(int day, int month, int year) {
+        ArrayList<Entry> list = new ArrayList<>();
+        for (Entry entry : entries) {
+            if (day == -1 || entry.date.getDayOfMonth() == day) {
+                if (month == -1 || entry.date.getMonthValue() == month) {
+                    if (year == -1 || entry.date.getYear() == year) {
+                        list.add(entry);
                     }
                 }
             }
@@ -59,25 +85,17 @@ public class Journal implements WindowListener {
         return getArrayFromList(list);
     }
 
-    public Entry[] searchForString(String text) {
+    Entry[] searchForString(String text) {
         ArrayList<Entry> list = new ArrayList<>();
         if (getMood(text) != null) {
-            for (int i = 0; i < entries.size(); i++) {
-                if (entries.get(i).mood == getMood(text)) {
-                    list.add(entries.get(i));
-                }
-            }
+            list.addAll(entries.stream().filter(entry -> entry.mood == getMood(text)).collect(Collectors.toList()));
         } else {
-            for (int i = 0; i < entries.size(); i++) {
-                if (entries.get(i).comment.toLowerCase().contains(text.toLowerCase())) {
-                    list.add(entries.get(i));
-                }
-            }
+            list.addAll(entries.stream().filter(entry -> entry.comment.toLowerCase().contains(text.toLowerCase())).collect(Collectors.toList()));
         }
         return getArrayFromList(list);
     }
 
-    public Entry[] getArrayFromList(ArrayList<Entry> list) {
+    private Entry[] getArrayFromList(ArrayList<Entry> list) {
         Entry[] result = new Entry[list.size()];
         for (int i = 0; i < list.size(); i++) {
             result[i] = list.get(i);
@@ -85,7 +103,7 @@ public class Journal implements WindowListener {
         return result;
     }
 
-    public ArrayList<Entry> readFromDB() {
+    private ArrayList<Entry> readFromDB() {
         ArrayList<Entry> entries = new ArrayList<>();
         try {
             Statement s = dbConnection.createStatement();
@@ -103,7 +121,7 @@ public class Journal implements WindowListener {
         return entries;
     }
 
-    public void readFromFile(String filePath) {
+    void readFromFile(String filePath) {
         try {
             File f = new File(filePath);
             if (!f.exists()) {
@@ -126,7 +144,7 @@ public class Journal implements WindowListener {
         }
     }
 
-    public void writeToDB(Entry entry) {
+    void writeToDB(Entry entry) {
         try {
             Statement s = dbConnection.createStatement();
             s.execute("insert into entries values (" +
@@ -137,25 +155,24 @@ public class Journal implements WindowListener {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
-    public void writeToDB(ArrayList<Entry> entries) {
+    private void writeToDB(ArrayList<Entry> entries) {
         try {
             Statement s = dbConnection.createStatement();
-            for (int i = 0; i < entries.size(); i++) {
+            for (Entry entry : entries) {
                 s.execute("insert into entries values (" +
-                        entries.get(i).getID() + ", '" +
-                        entries.get(i).date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "', '" +
-                        entries.get(i).mood.toString() + "', '" +
-                        escapeText(entries.get(i).comment) + "')");
+                        entry.getID() + ", '" +
+                        entry.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "', '" +
+                        entry.mood.toString() + "', '" +
+                        escapeText(entry.comment) + "')");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void writeToFile(String filePath) {
+    void writeToFile(String filePath) {
         try {
             File f = new File(filePath);
             if (!f.exists()) {
@@ -163,10 +180,10 @@ public class Journal implements WindowListener {
             }
 
             BufferedWriter bw = new BufferedWriter(new FileWriter(filePath));
-            for (int i = 0; i < entries.size(); i++) {
-                bw.write(entries.get(i).date.toString() + "\n");
-                bw.write(entries.get(i).mood.toString() + "\n");
-                bw.write(entries.get(i).comment + "\n");
+            for (Entry entry : entries) {
+                bw.write(entry.date.toString() + "\n");
+                bw.write(entry.mood.toString() + "\n");
+                bw.write(entry.comment + "\n");
             }
             bw.close();
         } catch (IOException e) {
@@ -174,15 +191,7 @@ public class Journal implements WindowListener {
         }
     }
 
-    public void updateEntry(Entry entry) {
-        try {
-            Statement s = dbConnection.createStatement();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static String escapeText(String text) {
+    private static String escapeText(String text) {
         String result = "";
         for (int i = 0; i < text.length(); i++) {
             if (text.charAt(i) == "'".charAt(0)) {
@@ -196,7 +205,7 @@ public class Journal implements WindowListener {
     private static LocalDate getDate(String line) {
         return LocalDate.parse(line, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
-    public static Entry.Mood getMood(String line) {
+    private static Entry.Mood getMood(String line) {
         switch (line) {
             case "Awesome":
                 return Entry.Mood.Awesome;
@@ -216,7 +225,7 @@ public class Journal implements WindowListener {
                 return null;
         }
     }
-    public int getNextID() {
+    int getNextID() {
         return ++lastEntryID;
     }
 	public static void main(String[] args) throws SQLException {
@@ -228,13 +237,14 @@ public class Journal implements WindowListener {
     }
     @Override
     public void windowClosing(WindowEvent e) {
-        window.updateUI();
         if (e.getSource() == window) {
             try {
                 initThread.join();
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
+        } else {
+            window.updateUI();
         }
     }
     @Override
@@ -252,7 +262,7 @@ public class Journal implements WindowListener {
     @Override
     public void windowActivated(WindowEvent e) {
         if (e.getSource() == window) {
-            initThread = new Thread(() -> init());
+            initThread = new Thread(this::init);
             initThread.start();
         }
     }
