@@ -219,4 +219,5 @@ pip-log.txt
 out/
 /comments
 /test
-/journal_backup/
+journal_backup/
+journal/

@@ -18,11 +18,11 @@ public class Journal implements WindowListener {
 
     private Connection dbConnection;
     private Thread initThread;
-    private ViewingWindow window;
+    JournalView view;
     private int lastEntryID = 0;
 
     public Journal() throws SQLException {
-        SwingUtilities.invokeLater(() -> window = new ViewingWindow(this));
+        SwingUtilities.invokeLater(() -> view = new JournalView(this));
     }
 
     private void init() {
@@ -40,17 +40,17 @@ public class Journal implements WindowListener {
         if (entries.size() > 0) {
             lastEntryID = entries.get(entries.size()-1).getID();
         }
-        window.updateUI();
+        view.update();
     }
 
     public void edit(Entry entry) {
         try {
             Statement s = dbConnection.createStatement();
-            s.execute("update entries set text='" + entry.comment + "' where id=" + entry.getID());
+            s.execute("update entries set text='" + entry.comment + "', mood='" + entry.mood.toString() + "' where id=" + entry.getID());
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        window.updateUI();
+        view.update();
     }
 
     void delete(Entry entry) {
@@ -67,7 +67,7 @@ public class Journal implements WindowListener {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        window.updateUI();
+        view.update();
     }
 
     Entry[] searchForDate(int day, int month, int year) {
@@ -237,14 +237,12 @@ public class Journal implements WindowListener {
     }
     @Override
     public void windowClosing(WindowEvent e) {
-        if (e.getSource() == window) {
+        if (e.getSource() == view) {
             try {
                 initThread.join();
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
-        } else {
-            window.updateUI();
         }
     }
     @Override
@@ -261,7 +259,7 @@ public class Journal implements WindowListener {
     }
     @Override
     public void windowActivated(WindowEvent e) {
-        if (e.getSource() == window) {
+        if (e.getSource() == view) {
             initThread = new Thread(this::init);
             initThread.start();
         }
