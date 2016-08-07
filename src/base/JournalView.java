@@ -7,8 +7,9 @@ import java.awt.event.KeyListener;
 
 class JournalView extends JFrame {
 
-    private static final int WIDTH = 900;
-    private static final int HEIGHT = 550;
+    private static final int WIDTH = 700;
+    private static final int HEIGHT = 400;
+    private static final int DATE_LIST_WIDTH = 130;
 
     static final String NEW_BUTTON = "New";
     static final String EDIT_BUTTON = "Edit";
@@ -24,13 +25,16 @@ class JournalView extends JFrame {
     private Journal journal;
     private JournalViewListener listener;
     JTextPane commentTP;
+    JScrollPane commentScrollPane;
     JList<Entry> dateList;
-	JTextField searchTF;
+    JScrollPane dateListScrollPane;
+    JTextField searchTF;
+    JPanel moodPanel;
     JRadioButton[] feelings;
 	JButton newBtn, searchBtn, exportBtn, importBtn, editBtn, deleteBtn;
     JRadioButton dateSearchRB, stringSearchRB;
-	
-	JournalView(Journal journal) {
+
+    JournalView(Journal journal) {
 		super("My First Application");
 		this.journal = journal;
         listener = new JournalViewListener(journal);
@@ -39,15 +43,69 @@ class JournalView extends JFrame {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setMaximumSize(new Dimension(WIDTH, HEIGHT));
-        // TODO switch to GroupLayout to make window resizable
-        setResizable(false);
-        addWindowListener(journal);
+        addWindowListener(this.journal);
         setVisible(true);
 
+        initComponents();
+
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(createSearchPanel());
-        panel.add(createShowPanel());
+        GroupLayout layout = new GroupLayout(panel);
+        layout.setAutoCreateGaps(true);
+        layout.setAutoCreateContainerGaps(true);
+        panel.setLayout(layout);
+        layout.setHorizontalGroup(
+                layout.createParallelGroup()
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(importBtn)
+                                .addComponent(exportBtn)
+                                .addComponent(searchTF)
+                                .addComponent(stringSearchRB)
+                                .addComponent(dateSearchRB)
+                                .addComponent(searchBtn))
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(dateListScrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup()
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(newBtn)
+                                                .addComponent(editBtn)
+                                                .addComponent(deleteBtn))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(feelings[0])
+                                                .addComponent(feelings[1])
+                                                .addComponent(feelings[2])
+                                                .addComponent(feelings[3])
+                                                .addComponent(feelings[4])
+                                                .addComponent(feelings[5])
+                                                .addComponent(feelings[6]))
+                                        .addComponent(commentScrollPane)))
+        );
+
+        layout.setVerticalGroup(
+                layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup()
+                                .addComponent(importBtn)
+                                .addComponent(exportBtn)
+                                .addComponent(searchTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(stringSearchRB)
+                                .addComponent(dateSearchRB)
+                                .addComponent(searchBtn))
+                        .addGroup(layout.createParallelGroup()
+                                .addComponent(dateListScrollPane)
+                                .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup()
+                                                .addComponent(newBtn)
+                                                .addComponent(editBtn)
+                                                .addComponent(deleteBtn))
+                                        .addGroup(layout.createParallelGroup()
+                                                .addComponent(feelings[0])
+                                                .addComponent(feelings[1])
+                                                .addComponent(feelings[2])
+                                                .addComponent(feelings[3])
+                                                .addComponent(feelings[4])
+                                                .addComponent(feelings[5])
+                                                .addComponent(feelings[6]))
+                                        .addComponent(commentScrollPane)))
+        );
         add(panel);
 
         pack();
@@ -81,28 +139,21 @@ class JournalView extends JFrame {
         dateList.setEnabled(enabled);
     }
 
-	private JPanel createSearchPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        // Import button
+    private void initComponents() {
         importBtn = new JButton(IMPORT_BUTTON);
         importBtn.addActionListener(listener);
         importBtn.setActionCommand(IMPORT_BUTTON);
         importBtn.setEnabled(false);
-        panel.add(importBtn);
 
         // Export button
         exportBtn = new JButton(EXPORT_BUTTON);
         exportBtn.addActionListener(listener);
         exportBtn.setActionCommand(EXPORT_BUTTON);
         exportBtn.setEnabled(false);
-        panel.add(exportBtn);
-        panel.add(Box.createRigidArea(new Dimension(5, 0)));
 
         // Search text field
         searchTF = new JTextField();
+        searchTF.setPreferredSize(new Dimension(0, 25));
         searchTF.setActionCommand(SEARCH_BUTTON);
         searchTF.addActionListener(listener);
         searchTF.setEnabled(false);
@@ -117,7 +168,6 @@ class JournalView extends JFrame {
         });
         searchTF.getDocument().addDocumentListener(listener);
         searchTF.setToolTipText("Date format: mm.dd.yyyy");
-        panel.add(searchTF);
 
         // Search type
         ButtonGroup group = new ButtonGroup();
@@ -134,66 +184,43 @@ class JournalView extends JFrame {
         dateSearchRB.addActionListener(listener);
         dateSearchRB.setEnabled(false);
         group.add(dateSearchRB);
-        panel.add(Box.createRigidArea(new Dimension(5, 0)));
-        panel.add(stringSearchRB);
-        panel.add(dateSearchRB);
 
         // Search button
         searchBtn = new JButton(SEARCH_BUTTON);
         searchBtn.addActionListener(listener);
         searchBtn.setActionCommand(SEARCH_BUTTON);
         searchBtn.setEnabled(false);
-        panel.add(searchBtn);
 
-	    return panel;
-    }
 
-    private JPanel createShowPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // List
+        // List of dates
         dateList = new JList<>();
         dateList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         dateList.setVisibleRowCount(2);
         dateList.addListSelectionListener(listener);
-        JScrollPane listScrollPane = new JScrollPane(dateList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        listScrollPane.setPreferredSize(new Dimension(130, 430));
-        listScrollPane.setMinimumSize(new Dimension(130, 430));
-        panel.add(listScrollPane);
-
-        JPanel commentPanel = new JPanel();
-        commentPanel.setLayout(new BoxLayout(commentPanel, BoxLayout.Y_AXIS));
-        JPanel commentBtnPanel = new JPanel();
-        commentBtnPanel.setLayout(new BoxLayout(commentBtnPanel, BoxLayout.X_AXIS));
-
+        dateListScrollPane = new JScrollPane(dateList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        dateListScrollPane.setPreferredSize(new Dimension(DATE_LIST_WIDTH, 0));
 
         // New button
         newBtn = new JButton(NEW_BUTTON);
         newBtn.addActionListener(listener);
         newBtn.setActionCommand(NEW_BUTTON);
         newBtn.setEnabled(false);
-        commentBtnPanel.add(newBtn);
 
         // Edit button
         editBtn = new JButton(EDIT_BUTTON);
         editBtn.addActionListener(listener);
         editBtn.setActionCommand(EDIT_BUTTON);
         editBtn.setEnabled(false);
-        commentBtnPanel.add(editBtn);
 
         // Delete button
         deleteBtn = new JButton(DELETE_BUTTON);
         deleteBtn.addActionListener(listener);
         deleteBtn.setActionCommand(DELETE_BUTTON);
         deleteBtn.setEnabled(false);
-        commentBtnPanel.add(deleteBtn);
-        commentBtnPanel.add(Box.createGlue());
-        commentPanel.add(commentBtnPanel);
 
         // Mood selection
-        JPanel moodPanel = new JPanel();
+        moodPanel = new JPanel();
         moodPanel.setLayout(new GridLayout(0, 7));
         moodPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         feelings = new JRadioButton[Entry.Mood.values().length];
@@ -201,23 +228,17 @@ class JournalView extends JFrame {
             feelings[i] = new JRadioButton(Entry.Mood.values()[i].toString());
             feelings[i].setEnabled(false);
         }
-        ButtonGroup group = new ButtonGroup();
+        group = new ButtonGroup();
         for (JRadioButton feeling : feelings) {
             group.add(feeling);
             moodPanel.add(feeling);
         }
         feelings[feelings.length/2].setSelected(true);
-        commentPanel.add(moodPanel);
 
         // Text field
         commentTP = new JTextPane();
         commentTP.setEditable(false);
         commentTP.setText(LOADING_APPLICATION);
-        JScrollPane textScrollPane = new JScrollPane(commentTP);
-        textScrollPane.setPreferredSize(new Dimension(500, 430));
-        commentPanel.add(textScrollPane);
-
-        panel.add(commentPanel);
-        return panel;
+        commentScrollPane = new JScrollPane(commentTP);
     }
 }
