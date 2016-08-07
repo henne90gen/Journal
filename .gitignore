@@ -50,7 +50,7 @@ build/
 [Bb]in/
 [Oo]bj/
 
-# MSTest test Results
+# MSTest myTest Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
@@ -204,7 +204,7 @@ develop-eggs/
 # Installer logs
 pip-log.txt
 
-# Unit test / coverage reports
+# Unit myTest / coverage reports
 .coverage
 .tox
 
@@ -218,6 +218,6 @@ pip-log.txt
 /Journal.iml
 out/
 /comments
-/test
+/myTest
 journal_backup/
 journal/
