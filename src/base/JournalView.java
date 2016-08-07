@@ -9,7 +9,7 @@ class JournalView extends JFrame {
 
     private static final int WIDTH = 700;
     private static final int HEIGHT = 400;
-    private static final int DATE_LIST_WIDTH = 130;
+    private static final int DATE_LIST_WIDTH = 140;
 
     static final String NEW_BUTTON = "New";
     static final String EDIT_BUTTON = "Edit";

@@ -7,15 +7,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-/**
- * Created by henne on 07.08.16.
- */
 class JournalData {
 
     private Journal journal;
     private static final String DB = "jdbc:derby:journal;create=true";
 
-    ArrayList<Entry> entries = new ArrayList<Entry>();
+    ArrayList<Entry> entries = new ArrayList<>();
 
     private Connection dbConnection;
     private int lastEntryID = 0;

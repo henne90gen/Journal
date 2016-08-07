@@ -12,9 +12,6 @@ import java.time.LocalDate;
 
 import static base.JournalView.*;
 
-/**
- * Created by henne on 07.08.16.
- */
 class JournalViewListener implements ListSelectionListener, ActionListener, DocumentListener {
 
     private Journal journal;
