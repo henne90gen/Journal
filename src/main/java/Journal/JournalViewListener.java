@@ -1,4 +1,4 @@
-package base;
+package Journal;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.time.LocalDate;
 
-import static base.JournalView.*;
+import static Journal.JournalView.*;
 
 class JournalViewListener implements ListSelectionListener, ActionListener, DocumentListener {
 
@@ -24,7 +24,6 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
             case NEW_BUTTON:
                 Entry entry = new Entry(journal.data.getNextID(), LocalDate.now(), Entry.Mood.Undecided, "");
 
-                journal.data.writeToDB(entry);
                 journal.data.entries.add(entry);
 
                 journal.view.update();
@@ -58,11 +57,13 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
                     }
                 }
                 journal.view.dateList.getSelectedValue().comment = journal.view.commentTP.getText();
-                journal.data.edit(journal.view.dateList.getSelectedValue());
                 journal.view.dateList.setSelectedIndex(index);
+                journal.data.save();
+                journal.view.update();
                 break;
             case DELETE_BUTTON:
                 journal.data.delete(journal.view.dateList.getSelectedValue());
+                journal.view.update();
                 break;
             case EXPORT_BUTTON: {
                 JFileChooser fc = new JFileChooser();

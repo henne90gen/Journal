@@ -1,4 +1,4 @@
-package base;
+package Journal;
 
 import javax.swing.*;
 import java.awt.*;
