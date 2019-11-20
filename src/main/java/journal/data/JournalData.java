@@ -13,7 +13,7 @@ public class JournalData implements IJournalData {
 
 	private final List<Entry> entries = new ArrayList<>();
 
-	private int lastEntryID = 0;
+	private int lastEntryID = -1;
 
 	private Callback updateCallback;
 
@@ -85,7 +85,18 @@ public class JournalData implements IJournalData {
 		}
 	}
 
-	private int getNextID() {
+	@Override
+	public void saveAll(List<Entry> entries) {
+		for (Entry entry : entries) {
+			save_(entry);
+		}
+
+		if (updateCallback != null) {
+			updateCallback.call();
+		}
+	}
+
+	int getNextID() {
 		return ++lastEntryID;
 	}
 
@@ -110,12 +121,5 @@ public class JournalData implements IJournalData {
 	@Override
 	public void setUpdateCallback(Callback callback) {
 		this.updateCallback = callback;
-	}
-
-	@Override
-	public void saveAll(List<Entry> entries) {
-		for (Entry entry : entries) {
-			save(entry);
-		}
 	}
 }

@@ -4,5 +4,8 @@
 # Ignore Gradle build output directory
 build
 
-journal.txt
+# Ignore IntelliJ meta-data
 .idea
+
+journal.txt
+journal.json

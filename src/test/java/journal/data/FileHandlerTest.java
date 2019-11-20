@@ -1,4 +1,4 @@
-package journal;
+package journal.data;
 
 import journal.data.Entry;
 import journal.data.FileHandler;
