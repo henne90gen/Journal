@@ -1,4 +1,8 @@
-package Journal;
+package journal;
+
+import com.google.common.flogger.FluentLogger;
+import journal.data.Entry;
+import journal.data.FileHandler;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -11,9 +15,11 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
-import static Journal.JournalView.*;
+import static journal.JournalView.*;
 
 class JournalViewListener implements ListSelectionListener, ActionListener, DocumentListener {
+
+	private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
 
 	private Journal journal;
 
@@ -68,7 +74,9 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		int returnVal = fc.showOpenDialog(journal.view);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String path = fc.getSelectedFile().getPath();
-			new FileImporter(journal.data).readFromFile(path);
+			File file = new File(path);
+			List<Entry> entries = FileHandler.INSTANCE.readFromFile(file);
+			journal.data.saveAll(entries);
 		}
 		journal.view.update();
 	}
@@ -79,7 +87,8 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		int returnVal = fc.showSaveDialog(journal.view);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String path = fc.getSelectedFile().getPath();
-			new FileExporter(journal.data).writeToFile(path);
+			File file = new File(path);
+			FileHandler.INSTANCE.writeToFile(journal.data.getAllEntries(), file);
 		}
 	}
 
@@ -96,21 +105,26 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		journal.view.commentTP.setEditable(false);
 		journal.view.editBtn.setText(EDIT_BUTTON);
 		journal.view.editBtn.setActionCommand(EDIT_BUTTON);
+
 		int index = journal.view.dateList.getSelectedIndex();
+		Entry selectedEntry = journal.view.dateList.getSelectedValue();
 		for (int i = 0; i < journal.view.feelings.length; i++) {
 			if (journal.view.feelings[i].isSelected()) {
-				journal.view.dateList.getSelectedValue().mood = Entry.Mood.values()[i];
+				selectedEntry.mood = Entry.Mood.values()[i];
 				break;
 			}
 		}
-		journal.view.dateList.getSelectedValue().comment = journal.view.commentTP.getText();
+		selectedEntry.comment = journal.view.commentTP.getText();
 		journal.view.dateList.setSelectedIndex(index);
-		new FileExporter(journal.data).writeToFile();
+		journal.data.save(selectedEntry);
+
+		FileHandler.INSTANCE.writeToFile(journal.data.getAllEntries());
 		journal.view.update();
 	}
 
 	private void editButtonPressed() {
-		System.out.println("Editing entry " + journal.view.dateList.getSelectedValue().id + ".");
+		LOGGER.atInfo().log("Editing entry " + journal.view.dateList.getSelectedValue().id + ".");
+
 		journal.view.setUIEnabled(false);
 		journal.view.editBtn.setEnabled(true);
 		journal.view.commentTP.setEditable(true);
@@ -123,10 +137,8 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 
 	private void newButtonPressed() {
 		Entry entry = new Entry(LocalDate.now(), Entry.Mood.Undecided, "");
-
 		journal.data.save(entry);
 
-		journal.view.update();
 		journal.view.dateList.setSelectedIndex(journal.data.getAllEntries().size() - 1);
 		actionPerformed(new ActionEvent(this, 0, EDIT_BUTTON));
 	}

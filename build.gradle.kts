@@ -18,15 +18,20 @@ repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenCentral()
 }
 
 val floggerVersion = "0.4"
+val jacksonVersion = "2.10.1"
 
 dependencies {
     implementation("com.google.flogger:flogger:${floggerVersion}")
     implementation("com.google.flogger:flogger-system-backend:${floggerVersion}")
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}")
+    implementation("com.fasterxml.jackson.module:jackson-module-parameter-names:${jacksonVersion}")
 
     // Use JUnit Jupiter API for testing.
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.2")
@@ -37,7 +42,7 @@ dependencies {
 
 application {
     // Define the main class for the application
-    mainClassName = "Journal.Journal"
+    mainClassName = "journal.Journal"
 }
 
 val test by tasks.getting(Test::class) {

@@ -1,7 +1,7 @@
-package Journal;
+package journal.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.flogger.FluentLogger;
+import journal.JournalHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +11,11 @@ public class JournalData implements IJournalData {
 
 	private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
 
-	private static ObjectMapper MAPPER = new ObjectMapper();
-
 	private final List<Entry> entries = new ArrayList<>();
 
 	private int lastEntryID = 0;
+
+	private Callback updateCallback;
 
 	@Override
 	public List<Entry> findByDate(int day, int month, int year) {
@@ -50,10 +50,39 @@ public class JournalData implements IJournalData {
 				.collect(Collectors.toList());
 	}
 
+	private void save_(Entry entry) {
+		if (entry.id == -1) {
+			entry.id = getNextID();
+			entries.add(entry);
+			return;
+		}
+
+		boolean found = false;
+		for (Entry e : entries) {
+			if (entry.id != e.id) {
+				continue;
+			}
+			e.date = entry.date;
+			e.mood = entry.mood;
+			e.comment = entry.comment;
+			found = true;
+			break;
+		}
+		if (!found) {
+			entries.add(entry);
+		}
+		if (entry.id > lastEntryID) {
+			lastEntryID = entry.id;
+		}
+	}
+
 	@Override
 	public void save(Entry entry) {
-		entry.id = getNextID();
-		entries.add(entry);
+		save_(entry);
+
+		if (updateCallback != null) {
+			updateCallback.call();
+		}
 	}
 
 	private int getNextID() {
@@ -72,6 +101,21 @@ public class JournalData implements IJournalData {
 			lastEntryID = entries.get(entries.size() - 1).id;
 		} else {
 			lastEntryID = 0;
+		}
+		if (updateCallback != null) {
+			updateCallback.call();
+		}
+	}
+
+	@Override
+	public void setUpdateCallback(Callback callback) {
+		this.updateCallback = callback;
+	}
+
+	@Override
+	public void saveAll(List<Entry> entries) {
+		for (Entry entry : entries) {
+			save(entry);
 		}
 	}
 }

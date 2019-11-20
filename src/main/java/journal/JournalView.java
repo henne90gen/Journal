@@ -1,9 +1,12 @@
-package Journal;
+package journal;
+
+import journal.data.Entry;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.List;
 
 class JournalView extends JFrame {
 
@@ -35,9 +38,10 @@ class JournalView extends JFrame {
 	JRadioButton dateSearchRB, stringSearchRB;
 
 	public JournalView(Journal journal) {
-		super("Journal");
+		super("journal");
 		this.journal = journal;
 		listener = new JournalViewListener(journal);
+		journal.data.setUpdateCallback(this::update);
 
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -111,22 +115,22 @@ class JournalView extends JFrame {
 										.addComponent(feelings[4])
 										.addComponent(feelings[5])
 										.addComponent(feelings[6]))
-								.addComponent(commentScrollPane)))
-				;
+								.addComponent(commentScrollPane)));
 	}
 
-	void update() {
+	public void update() {
 		setUIEnabled(true);
 
 		commentTP.setText("");
-		Entry[] entries = new Entry[journal.data.getAllEntries().size()];
+		List<Entry> entriesList = journal.data.getAllEntries();
+		Entry[] entries = new Entry[entriesList.size()];
 		for (int i = 0; i < entries.length; i++) {
-			entries[i] = journal.data.getAllEntries().get(i);
+			entries[i] = entriesList.get(i);
 		}
 		dateList.setListData(entries);
 		dateList.setSelectedIndex(0);
-		searchTF.setText("");
 		dateList.requestFocus();
+		searchTF.setText("");
 	}
 
 	void setUIEnabled(boolean enabled) {
@@ -144,17 +148,6 @@ class JournalView extends JFrame {
 	}
 
 	private void initComponents() {
-		importBtn = new JButton(IMPORT_BUTTON);
-		importBtn.addActionListener(listener);
-		importBtn.setActionCommand(IMPORT_BUTTON);
-		importBtn.setEnabled(false);
-
-		// Export button
-		exportBtn = new JButton(EXPORT_BUTTON);
-		exportBtn.addActionListener(listener);
-		exportBtn.setActionCommand(EXPORT_BUTTON);
-		exportBtn.setEnabled(false);
-
 		// Search text field
 		searchTF = new JTextField();
 		searchTF.setPreferredSize(new Dimension(0, 25));
@@ -182,6 +175,7 @@ class JournalView extends JFrame {
 
 		// Search type
 		ButtonGroup group = new ButtonGroup();
+
 		// String search
 		stringSearchRB = new JRadioButton("String");
 		stringSearchRB.setSelected(true);
@@ -189,19 +183,13 @@ class JournalView extends JFrame {
 		stringSearchRB.addActionListener(listener);
 		stringSearchRB.setEnabled(false);
 		group.add(stringSearchRB);
+
 		// Date search
 		dateSearchRB = new JRadioButton("Date");
 		dateSearchRB.setActionCommand(SEARCH_RADIO_BUTTON);
 		dateSearchRB.addActionListener(listener);
 		dateSearchRB.setEnabled(false);
 		group.add(dateSearchRB);
-
-		// Search button
-		searchBtn = new JButton(SEARCH_BUTTON);
-		searchBtn.addActionListener(listener);
-		searchBtn.setActionCommand(SEARCH_BUTTON);
-		searchBtn.setEnabled(false);
-
 
 		// List of dates
 		dateList = new JList<>();
@@ -211,23 +199,13 @@ class JournalView extends JFrame {
 		dateListScrollPane = new JScrollPane(dateList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		dateListScrollPane.setPreferredSize(new Dimension(DATE_LIST_WIDTH, 0));
 
-		// New button
-		newBtn = new JButton(NEW_BUTTON);
-		newBtn.addActionListener(listener);
-		newBtn.setActionCommand(NEW_BUTTON);
-		newBtn.setEnabled(false);
-
-		// Edit button
-		editBtn = new JButton(EDIT_BUTTON);
-		editBtn.addActionListener(listener);
-		editBtn.setActionCommand(EDIT_BUTTON);
-		editBtn.setEnabled(false);
-
-		// Delete button
-		deleteBtn = new JButton(DELETE_BUTTON);
-		deleteBtn.addActionListener(listener);
-		deleteBtn.setActionCommand(DELETE_BUTTON);
-		deleteBtn.setEnabled(false);
+		// Buttons
+		importBtn = createButton(IMPORT_BUTTON);
+		exportBtn = createButton(EXPORT_BUTTON);
+		searchBtn = createButton(SEARCH_BUTTON);
+		newBtn = createButton(NEW_BUTTON);
+		editBtn = createButton(EDIT_BUTTON);
+		deleteBtn = createButton(DELETE_BUTTON);
 
 		// Mood selection
 		moodPanel = new JPanel();
@@ -250,5 +228,13 @@ class JournalView extends JFrame {
 		commentTP.setEditable(false);
 		commentTP.setText(LOADING_APPLICATION);
 		commentScrollPane = new JScrollPane(commentTP);
+	}
+
+	private JButton createButton(String text) {
+		JButton btn = new JButton(text);
+		btn.addActionListener(listener);
+		btn.setActionCommand(text);
+		btn.setEnabled(false);
+		return btn;
 	}
 }

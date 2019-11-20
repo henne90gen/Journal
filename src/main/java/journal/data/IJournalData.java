@@ -1,4 +1,4 @@
-package Journal;
+package journal.data;
 
 import java.util.List;
 
@@ -13,4 +13,8 @@ public interface IJournalData {
 	void save(Entry entry);
 
 	void delete(Entry entry);
+
+	void setUpdateCallback(Callback callback);
+
+	void saveAll(List<Entry> entries);
 }

@@ -1,4 +1,4 @@
-# Journal
+# journal
 
 During the time of my student exchange year I used this app to write down my thoughts every day.
 

@@ -1,11 +1,11 @@
-package Journal;
+package journal.data;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Entry {
 
-	enum Mood {
+	public enum Mood {
 		Awesome, Great, Good, Undecided, Bad, Poor, Waste
 	}
 
@@ -15,12 +15,14 @@ public class Entry {
 	public Mood mood;
 
 	public Entry() {
-		date = LocalDate.now();
-		comment = "";
-		mood = Mood.Undecided;
+		this.id = -1;
+		this.date = LocalDate.now();
+		this.comment = "";
+		this.mood = Mood.Undecided;
 	}
 
 	public Entry(LocalDate date, Mood mood, String comment) {
+		this.id = -1;
 		this.date = date;
 		this.comment = comment;
 		this.mood = mood;

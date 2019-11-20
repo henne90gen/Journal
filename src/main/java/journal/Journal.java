@@ -1,4 +1,8 @@
-package Journal;
+package journal;
+
+import journal.data.FileHandler;
+import journal.data.IJournalData;
+import journal.data.JournalData;
 
 import javax.swing.*;
 import java.awt.event.WindowEvent;
@@ -15,7 +19,7 @@ public class Journal implements WindowListener {
 	}
 
 	private void init() {
-		view.update();
+		data.saveAll(FileHandler.INSTANCE.readFromFile());
 	}
 
 	public static void main(String[] args) {
