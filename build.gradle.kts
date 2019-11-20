@@ -20,7 +20,14 @@ repositories {
     jcenter()
 }
 
+val floggerVersion = "0.4"
+
 dependencies {
+    implementation("com.google.flogger:flogger:${floggerVersion}")
+    implementation("com.google.flogger:flogger-system-backend:${floggerVersion}")
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.10.1")
+
     // Use JUnit Jupiter API for testing.
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.2")
 
