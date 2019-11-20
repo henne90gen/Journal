@@ -7,7 +7,7 @@ import java.awt.event.WindowListener;
 public class Journal implements WindowListener {
 
 	JournalView view;
-	JournalData data;
+	IJournalData data;
 
 	public void run() {
 		data = new JournalData();
@@ -15,7 +15,6 @@ public class Journal implements WindowListener {
 	}
 
 	private void init() {
-		data.load();
 		view.update();
 	}
 

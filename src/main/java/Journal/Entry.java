@@ -20,8 +20,7 @@ public class Entry {
 		mood = Mood.Undecided;
 	}
 
-	public Entry(int id, LocalDate date, Mood mood, String comment) {
-		this.id = id;
+	public Entry(LocalDate date, Mood mood, String comment) {
 		this.date = date;
 		this.comment = comment;
 		this.mood = mood;

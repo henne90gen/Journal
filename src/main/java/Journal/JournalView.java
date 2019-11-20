@@ -34,7 +34,7 @@ class JournalView extends JFrame {
 	JButton newBtn, searchBtn, exportBtn, importBtn, editBtn, deleteBtn;
 	JRadioButton dateSearchRB, stringSearchRB;
 
-	JournalView(Journal journal) {
+	public JournalView(Journal journal) {
 		super("Journal");
 		this.journal = journal;
 		listener = new JournalViewListener(journal);
@@ -52,63 +52,67 @@ class JournalView extends JFrame {
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
+		layout.setHorizontalGroup(createHorizontalLayout(layout));
+		layout.setVerticalGroup(createVerticalLayout(layout));
 		panel.setLayout(layout);
-		layout.setHorizontalGroup(
-				layout.createParallelGroup()
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(importBtn)
-								.addComponent(exportBtn)
-								.addComponent(searchTF)
-								.addComponent(stringSearchRB)
-								.addComponent(dateSearchRB)
-								.addComponent(searchBtn))
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(dateListScrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addGroup(layout.createParallelGroup()
-										.addGroup(layout.createSequentialGroup()
-												.addComponent(newBtn)
-												.addComponent(editBtn)
-												.addComponent(deleteBtn))
-										.addGroup(layout.createSequentialGroup()
-												.addComponent(feelings[0])
-												.addComponent(feelings[1])
-												.addComponent(feelings[2])
-												.addComponent(feelings[3])
-												.addComponent(feelings[4])
-												.addComponent(feelings[5])
-												.addComponent(feelings[6]))
-										.addComponent(commentScrollPane)))
-		);
-
-		layout.setVerticalGroup(
-				layout.createSequentialGroup()
-						.addGroup(layout.createParallelGroup()
-								.addComponent(importBtn)
-								.addComponent(exportBtn)
-								.addComponent(searchTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(stringSearchRB)
-								.addComponent(dateSearchRB)
-								.addComponent(searchBtn))
-						.addGroup(layout.createParallelGroup()
-								.addComponent(dateListScrollPane)
-								.addGroup(layout.createSequentialGroup()
-										.addGroup(layout.createParallelGroup()
-												.addComponent(newBtn)
-												.addComponent(editBtn)
-												.addComponent(deleteBtn))
-										.addGroup(layout.createParallelGroup()
-												.addComponent(feelings[0])
-												.addComponent(feelings[1])
-												.addComponent(feelings[2])
-												.addComponent(feelings[3])
-												.addComponent(feelings[4])
-												.addComponent(feelings[5])
-												.addComponent(feelings[6]))
-										.addComponent(commentScrollPane)))
-		);
 		add(panel);
 
 		pack();
+	}
+
+	private GroupLayout.Group createVerticalLayout(GroupLayout layout) {
+		return layout.createSequentialGroup()
+				.addGroup(layout.createParallelGroup()
+						.addComponent(importBtn)
+						.addComponent(exportBtn)
+						.addComponent(searchTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(stringSearchRB)
+						.addComponent(dateSearchRB)
+						.addComponent(searchBtn))
+				.addGroup(layout.createParallelGroup()
+						.addComponent(dateListScrollPane)
+						.addGroup(layout.createSequentialGroup()
+								.addGroup(layout.createParallelGroup()
+										.addComponent(newBtn)
+										.addComponent(editBtn)
+										.addComponent(deleteBtn))
+								.addGroup(layout.createParallelGroup()
+										.addComponent(feelings[0])
+										.addComponent(feelings[1])
+										.addComponent(feelings[2])
+										.addComponent(feelings[3])
+										.addComponent(feelings[4])
+										.addComponent(feelings[5])
+										.addComponent(feelings[6]))
+								.addComponent(commentScrollPane)));
+	}
+
+	private GroupLayout.Group createHorizontalLayout(GroupLayout layout) {
+		return layout.createParallelGroup()
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(importBtn)
+						.addComponent(exportBtn)
+						.addComponent(searchTF)
+						.addComponent(stringSearchRB)
+						.addComponent(dateSearchRB)
+						.addComponent(searchBtn))
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(dateListScrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addGroup(layout.createParallelGroup()
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(newBtn)
+										.addComponent(editBtn)
+										.addComponent(deleteBtn))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(feelings[0])
+										.addComponent(feelings[1])
+										.addComponent(feelings[2])
+										.addComponent(feelings[3])
+										.addComponent(feelings[4])
+										.addComponent(feelings[5])
+										.addComponent(feelings[6]))
+								.addComponent(commentScrollPane)))
+				;
 	}
 
 	void update() {

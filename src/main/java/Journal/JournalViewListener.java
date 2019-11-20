@@ -25,73 +25,25 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	public void actionPerformed(ActionEvent e) {
 		switch (e.getActionCommand()) {
 			case NEW_BUTTON:
-				Entry entry = new Entry(journal.data.getNextID(), LocalDate.now(), Entry.Mood.Undecided, "");
-
-				journal.data.save(entry);
-
-				journal.view.update();
-				journal.view.dateList.setSelectedIndex(journal.data.getAllEntries().size() - 1);
-				actionPerformed(new ActionEvent(this, 0, EDIT_BUTTON));
+				newButtonPressed();
 				break;
 			case EDIT_BUTTON:
-				System.out.println("Editing entry " + journal.view.dateList.getSelectedValue().id + ".");
-				journal.view.setUIEnabled(false);
-				journal.view.editBtn.setEnabled(true);
-				journal.view.commentTP.setEditable(true);
-				for (JRadioButton f : journal.view.feelings) {
-					f.setEnabled(true);
-				}
-				journal.view.editBtn.setText(SAVE_BUTTON);
-				journal.view.editBtn.setActionCommand(SAVE_BUTTON);
+				editButtonPressed();
 				break;
 			case SAVE_BUTTON:
-				journal.view.setUIEnabled(true);
-				for (JRadioButton f : journal.view.feelings) {
-					f.setEnabled(false);
-				}
-				journal.view.commentTP.setEditable(false);
-				journal.view.editBtn.setText(EDIT_BUTTON);
-				journal.view.editBtn.setActionCommand(EDIT_BUTTON);
-				int index = journal.view.dateList.getSelectedIndex();
-				for (int i = 0; i < journal.view.feelings.length; i++) {
-					if (journal.view.feelings[i].isSelected()) {
-						journal.view.dateList.getSelectedValue().mood = Entry.Mood.values()[i];
-						break;
-					}
-				}
-				journal.view.dateList.getSelectedValue().comment = journal.view.commentTP.getText();
-				journal.view.dateList.setSelectedIndex(index);
-				journal.data.save();
-				journal.view.update();
+				saveButtonPressed();
 				break;
 			case DELETE_BUTTON:
-				journal.data.delete(journal.view.dateList.getSelectedValue());
-				journal.view.update();
+				deleteButtonPressed();
 				break;
-			case EXPORT_BUTTON: {
-				JFileChooser fc = new JFileChooser();
-				fc.setCurrentDirectory(new File("./"));
-				int returnVal = fc.showSaveDialog(journal.view);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					journal.data.writeToFile(fc.getSelectedFile().getPath());
-				}
-			}
-			break;
-			case IMPORT_BUTTON: {
-				JFileChooser fc = new JFileChooser();
-				fc.setCurrentDirectory(new File("./"));
-				int returnVal = fc.showOpenDialog(journal.view);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					journal.data.readFromFile(fc.getSelectedFile().getPath());
-				}
-				journal.view.update();
-			}
-			break;
+			case EXPORT_BUTTON:
+				exportButtonPressed();
+				break;
+			case IMPORT_BUTTON:
+				importButtonPressed();
+				break;
 			case SEARCH_BUTTON:
-				if (journal.view.dateSearchRB.isSelected())
-					searchDate();
-				else if (journal.view.stringSearchRB.isSelected())
-					searchString();
+				searchButtonPressed();
 				break;
 			case SEARCH_RADIO_BUTTON:
 				SwingUtilities.invokeLater(() -> {
@@ -100,6 +52,83 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 				});
 				break;
 		}
+	}
+
+	private void searchButtonPressed() {
+		if (journal.view.dateSearchRB.isSelected()) {
+			searchDate();
+		} else if (journal.view.stringSearchRB.isSelected()) {
+			searchString();
+		}
+	}
+
+	private void importButtonPressed() {
+		JFileChooser fc = new JFileChooser();
+		fc.setCurrentDirectory(new File("./"));
+		int returnVal = fc.showOpenDialog(journal.view);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String path = fc.getSelectedFile().getPath();
+			new FileImporter(journal.data).readFromFile(path);
+		}
+		journal.view.update();
+	}
+
+	private void exportButtonPressed() {
+		JFileChooser fc = new JFileChooser();
+		fc.setCurrentDirectory(new File("./"));
+		int returnVal = fc.showSaveDialog(journal.view);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			String path = fc.getSelectedFile().getPath();
+			new FileExporter(journal.data).writeToFile(path);
+		}
+	}
+
+	private void deleteButtonPressed() {
+		journal.data.delete(journal.view.dateList.getSelectedValue());
+		journal.view.update();
+	}
+
+	private void saveButtonPressed() {
+		journal.view.setUIEnabled(true);
+		for (JRadioButton f : journal.view.feelings) {
+			f.setEnabled(false);
+		}
+		journal.view.commentTP.setEditable(false);
+		journal.view.editBtn.setText(EDIT_BUTTON);
+		journal.view.editBtn.setActionCommand(EDIT_BUTTON);
+		int index = journal.view.dateList.getSelectedIndex();
+		for (int i = 0; i < journal.view.feelings.length; i++) {
+			if (journal.view.feelings[i].isSelected()) {
+				journal.view.dateList.getSelectedValue().mood = Entry.Mood.values()[i];
+				break;
+			}
+		}
+		journal.view.dateList.getSelectedValue().comment = journal.view.commentTP.getText();
+		journal.view.dateList.setSelectedIndex(index);
+		new FileExporter(journal.data).writeToFile();
+		journal.view.update();
+	}
+
+	private void editButtonPressed() {
+		System.out.println("Editing entry " + journal.view.dateList.getSelectedValue().id + ".");
+		journal.view.setUIEnabled(false);
+		journal.view.editBtn.setEnabled(true);
+		journal.view.commentTP.setEditable(true);
+		for (JRadioButton f : journal.view.feelings) {
+			f.setEnabled(true);
+		}
+		journal.view.editBtn.setText(SAVE_BUTTON);
+		journal.view.editBtn.setActionCommand(SAVE_BUTTON);
+	}
+
+	private void newButtonPressed() {
+		Entry entry = new Entry(LocalDate.now(), Entry.Mood.Undecided, "");
+
+		journal.data.save(entry);
+
+		journal.view.update();
+		journal.view.dateList.setSelectedIndex(journal.data.getAllEntries().size() - 1);
+		actionPerformed(new ActionEvent(this, 0, EDIT_BUTTON));
 	}
 
 	private void searchDate() {
