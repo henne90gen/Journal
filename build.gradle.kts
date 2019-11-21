@@ -4,30 +4,6 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application
     application
-
-    `maven-publish`
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/henne90gen/Journal")
-            credentials {
-                username = "henne90gen"
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "de.henne90gen"
-            artifactId = "journal"
-            version = "1.0"
-
-            from(components["java"])
-        }
-    }
 }
 
 repositories {
