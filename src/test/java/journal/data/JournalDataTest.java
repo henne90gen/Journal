@@ -22,10 +22,7 @@ public class JournalDataTest {
 		List<Entry> entries = data.getAllEntries();
 		assertEquals(1, entries.size());
 		Entry actualEntry = entries.get(0);
-		assertEquals(0, actualEntry.id);
-		assertEquals(LocalDate.of(2019, 1, 2), actualEntry.date);
-		assertEquals(Entry.Mood.Awesome, actualEntry.mood);
-		assertEquals("Test", actualEntry.comment);
+		assertEntry(actualEntry, LocalDate.of(2019, 1, 2), 0, Entry.Mood.Awesome, "Test");
 	}
 
 	@Test
@@ -45,10 +42,8 @@ public class JournalDataTest {
 		List<Entry> entries = data.getAllEntries();
 		assertEquals(1, entries.size());
 		Entry actualEntry = entries.get(0);
-		assertEquals(0, actualEntry.id);
-		assertEquals(LocalDate.of(2019, 1, 1), actualEntry.date);
-		assertEquals(Entry.Mood.Good, actualEntry.mood);
-		assertEquals("New Test", actualEntry.comment);
+		LocalDate expectedDate = LocalDate.of(2019, 1, 1);
+		assertEntry(actualEntry, expectedDate, 0, Entry.Mood.Good, "New Test");
 	}
 
 	@Test
@@ -62,13 +57,10 @@ public class JournalDataTest {
 		List<Entry> entries = data.getAllEntries();
 		assertEquals(1, entries.size());
 		Entry actualEntry = entries.get(0);
-		assertEquals(123, actualEntry.id);
-		assertEquals(LocalDate.of(2019, 1, 2), actualEntry.date);
-		assertEquals(Entry.Mood.Awesome, actualEntry.mood);
-		assertEquals("Test", actualEntry.comment);
+		assertEntry(actualEntry, LocalDate.of(2019, 1, 2), 123, Entry.Mood.Awesome, "Test");
 	}
 
-	class Counter {
+	static class Counter {
 		private int count = 0;
 
 		void increment() {
@@ -94,5 +86,117 @@ public class JournalDataTest {
 		data.saveAll(entries);
 
 		assertEquals(1, counter.getCount());
+	}
+
+	@Test
+	public void testDeleteEntry() {
+		JournalData data = new JournalData();
+		List<Entry> entries = new ArrayList<>();
+		LocalDate date = LocalDate.of(2019, 1, 1);
+		Entry toBeDeleted = new Entry(date, Entry.Mood.Good, "ToBeDeleted");
+		entries.add(new Entry(date, Entry.Mood.Bad, "NotToBeDeleted-1"));
+		entries.add(toBeDeleted);
+		entries.add(new Entry(date, Entry.Mood.Great, "NotToBeDeleted-2"));
+		data.saveAll(entries);
+
+		data.delete(toBeDeleted);
+
+		List<Entry> actualEntries = data.getAllEntries();
+		assertEquals(2, actualEntries.size());
+		Entry actualEntry1 = actualEntries.get(0);
+		assertEntry(actualEntry1, date, 0, Entry.Mood.Bad, "NotToBeDeleted-1");
+
+		Entry actualEntry2 = actualEntries.get(1);
+		assertEntry(actualEntry2, date, 2, Entry.Mood.Great, "NotToBeDeleted-2");
+
+		assertEquals(3, data.getNextID());
+	}
+
+	@Test
+	public void testFindByDateCanFindYear() {
+		IJournalData data = new JournalData();
+		List<Entry> entries = new ArrayList<>();
+		LocalDate date = LocalDate.of(2019, 1, 1);
+		entries.add(new Entry(date, Entry.Mood.Good, "Test-1"));
+		entries.add(new Entry(date.plusDays(1), Entry.Mood.Good, "Test-2"));
+		entries.add(new Entry(date.plusYears(1), Entry.Mood.Good, "Test-3"));
+		data.saveAll(entries);
+
+		List<Entry> actualEntries = data.findByDate(-1, -1, 2019);
+		assertEquals(2, actualEntries.size());
+		assertEntry(actualEntries.get(0), date, 0, Entry.Mood.Good, "Test-1");
+		assertEntry(actualEntries.get(1), date.plusDays(1), 1, Entry.Mood.Good, "Test-2");
+
+		actualEntries = data.findByDate(-1, -1, 2020);
+		assertEquals(1, actualEntries.size());
+		assertEntry(actualEntries.get(0), date.plusYears(1), 2, Entry.Mood.Good, "Test-3");
+	}
+
+	@Test
+	public void testFindByDateCanFindDay() {
+		IJournalData data = new JournalData();
+		List<Entry> entries = new ArrayList<>();
+		LocalDate date = LocalDate.of(2019, 1, 1);
+		entries.add(new Entry(date, Entry.Mood.Good, "Test-1"));
+		entries.add(new Entry(date.plusDays(1), Entry.Mood.Good, "Test-2"));
+		entries.add(new Entry(date.plusYears(1), Entry.Mood.Good, "Test-3"));
+		data.saveAll(entries);
+
+		List<Entry> actualEntries = data.findByDate(1, -1, -1);
+		assertEquals(2, actualEntries.size());
+		assertEntry(actualEntries.get(0), date, 0, Entry.Mood.Good, "Test-1");
+		assertEntry(actualEntries.get(1), date.plusYears(1), 2, Entry.Mood.Good, "Test-3");
+
+		actualEntries = data.findByDate(2, -1, -1);
+		assertEquals(1, actualEntries.size());
+		assertEntry(actualEntries.get(0), date.plusDays(1), 1, Entry.Mood.Good, "Test-2");
+	}
+
+	@Test
+	public void testFindByDateCanFindMonth() {
+		IJournalData data = new JournalData();
+		List<Entry> entries = new ArrayList<>();
+		LocalDate date = LocalDate.of(2019, 1, 1);
+		entries.add(new Entry(date, Entry.Mood.Good, "Test-1"));
+		entries.add(new Entry(date.plusMonths(1), Entry.Mood.Good, "Test-2"));
+		entries.add(new Entry(date.plusYears(1), Entry.Mood.Good, "Test-3"));
+		data.saveAll(entries);
+
+		List<Entry> actualEntries = data.findByDate(-1, 1, -1);
+		assertEquals(2, actualEntries.size());
+		assertEntry(actualEntries.get(0), date, 0, Entry.Mood.Good, "Test-1");
+		assertEntry(actualEntries.get(1), date.plusYears(1), 2, Entry.Mood.Good, "Test-3");
+
+		actualEntries = data.findByDate(-1, 2, -1);
+		assertEquals(1, actualEntries.size());
+		assertEntry(actualEntries.get(0), date.plusMonths(1), 1, Entry.Mood.Good, "Test-2");
+	}
+
+	@Test
+	public void testFindByString() {
+		IJournalData data = new JournalData();
+		List<Entry> entries = new ArrayList<>();
+		LocalDate date = LocalDate.of(2019, 1, 1);
+		entries.add(new Entry(date, Entry.Mood.Good, "Test-1"));
+		entries.add(new Entry(date, Entry.Mood.Good, "Test-2"));
+		entries.add(new Entry(date, Entry.Mood.Good, "A comment"));
+		data.saveAll(entries);
+
+		List<Entry> actualEntries = data.findByString("Test");
+		assertEquals(2, actualEntries.size());
+		assertEntry(actualEntries.get(0), date, 0, Entry.Mood.Good, "Test-1");
+		assertEntry(actualEntries.get(1), date, 1, Entry.Mood.Good, "Test-2");
+
+		actualEntries = data.findByString("omm");
+		assertEquals(1, actualEntries.size());
+		assertEntry(actualEntries.get(0), date, 2, Entry.Mood.Good, "A comment");
+
+	}
+
+	private void assertEntry(Entry actualEntry, LocalDate date, int id, Entry.Mood mood, String comment) {
+		assertEquals(id, actualEntry.id);
+		assertEquals(date, actualEntry.date);
+		assertEquals(mood, actualEntry.mood);
+		assertEquals(comment, actualEntry.comment);
 	}
 }

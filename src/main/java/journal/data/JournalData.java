@@ -19,17 +19,11 @@ public class JournalData implements IJournalData {
 
 	@Override
 	public List<Entry> findByDate(int day, int month, int year) {
-		List<Entry> list = new ArrayList<>();
-		for (Entry entry : entries) {
-			if (day == -1 || entry.date.getDayOfMonth() == day) {
-				if (month == -1 || entry.date.getMonthValue() == month) {
-					if (year == -1 || entry.date.getYear() == year) {
-						list.add(entry);
-					}
-				}
-			}
-		}
-		return list;
+		return entries.stream()
+				.filter(e -> day == -1 || e.date.getDayOfMonth() == day)
+				.filter(e -> month == -1 || e.date.getMonthValue() == month)
+				.filter(e -> year == -1 || e.date.getYear() == year)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -108,11 +102,7 @@ public class JournalData implements IJournalData {
 				break;
 			}
 		}
-		if (entries.size() > 0) {
-			lastEntryID = entries.get(entries.size() - 1).id;
-		} else {
-			lastEntryID = 0;
-		}
+
 		if (updateCallback != null) {
 			updateCallback.call();
 		}
