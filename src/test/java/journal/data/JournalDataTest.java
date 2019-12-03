@@ -76,7 +76,7 @@ public class JournalDataTest {
 	public void testSaveAllCallsCallbackOnlyOnce() {
 		IJournalData data = new JournalData();
 		Counter counter = new Counter();
-		data.setUpdateCallback(counter::increment);
+		data.addUpdateCallback(counter::increment);
 
 		List<Entry> entries = new ArrayList<>();
 		entries.add(new Entry());

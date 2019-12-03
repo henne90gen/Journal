@@ -4,6 +4,8 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application
     application
+
+    `maven-publish`
 }
 
 repositories {
@@ -40,4 +42,33 @@ application {
 val test by tasks.getting(Test::class) {
     // Use junit platform for unit tests
     useJUnitPlatform()
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "Github"
+            url = uri("https://maven.pkg.github.com/henne90gen/Journal")
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_TOKEN")
+//                println(username)
+//                if (this.password != null) {
+//                    println(this.password!![0])
+//                } else {
+//                    println("No password set")
+//                }
+            }
+        }
+    }
+    afterEvaluate {
+        publications {
+            create<MavenPublication>("maven") {
+                from(components["java"])
+                pom {
+                    description.set("Journal Application")
+                }
+            }
+        }
+    }
 }

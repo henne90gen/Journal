@@ -14,7 +14,7 @@ public interface IJournalData {
 
 	void delete(Entry entry);
 
-	void setUpdateCallback(Callback callback);
+	void addUpdateCallback(Callback callback);
 
 	void saveAll(List<Entry> entries);
 }

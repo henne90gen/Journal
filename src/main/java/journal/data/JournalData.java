@@ -15,7 +15,7 @@ public class JournalData implements IJournalData {
 
 	private int lastEntryID = -1;
 
-	private Callback updateCallback;
+	private List<Callback> updateCallbacks = new ArrayList<>();
 
 	@Override
 	public List<Entry> findByDate(int day, int month, int year) {
@@ -74,9 +74,7 @@ public class JournalData implements IJournalData {
 	public void save(Entry entry) {
 		save_(entry);
 
-		if (updateCallback != null) {
-			updateCallback.call();
-		}
+		invokeCallbacks();
 	}
 
 	@Override
@@ -85,9 +83,7 @@ public class JournalData implements IJournalData {
 			save_(entry);
 		}
 
-		if (updateCallback != null) {
-			updateCallback.call();
-		}
+		invokeCallbacks();
 	}
 
 	int getNextID() {
@@ -103,13 +99,21 @@ public class JournalData implements IJournalData {
 			}
 		}
 
-		if (updateCallback != null) {
-			updateCallback.call();
-		}
+		invokeCallbacks();
 	}
 
 	@Override
-	public void setUpdateCallback(Callback callback) {
-		this.updateCallback = callback;
+	public void addUpdateCallback(Callback callback) {
+		if (callback == null) {
+			LOGGER.atWarning().log("Callback should not be null.");
+			return;
+		}
+		this.updateCallbacks.add(callback);
+	}
+
+	private void invokeCallbacks() {
+		for (Callback callback : updateCallbacks) {
+			callback.call();
+		}
 	}
 }

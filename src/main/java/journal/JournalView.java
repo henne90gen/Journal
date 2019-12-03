@@ -41,7 +41,7 @@ class JournalView extends JFrame {
 		super("journal");
 		this.journal = journal;
 		listener = new JournalViewListener(journal);
-		journal.data.setUpdateCallback(this::update);
+		journal.data.addUpdateCallback(this::update);
 
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));

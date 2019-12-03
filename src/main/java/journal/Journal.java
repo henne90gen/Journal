@@ -15,6 +15,9 @@ public class Journal implements WindowListener {
 
 	public void run() {
 		data = new JournalData();
+		data.addUpdateCallback(() -> {
+			FileHandler.INSTANCE.writeToFile(data.getAllEntries());
+		});
 		SwingUtilities.invokeLater(() -> view = new JournalView(this));
 	}
 
