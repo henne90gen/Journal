@@ -1,6 +1,7 @@
 package journal.data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Entry {
@@ -10,18 +11,18 @@ public class Entry {
 	}
 
 	public int id;
-	public LocalDate date;
+	public LocalDateTime date;
 	public String comment;
 	public Mood mood;
 
 	public Entry() {
 		this.id = -1;
-		this.date = LocalDate.now();
+		this.date = LocalDateTime.now();
 		this.comment = "";
 		this.mood = Mood.Undecided;
 	}
 
-	public Entry(LocalDate date, Mood mood, String comment) {
+	public Entry(LocalDateTime date, Mood mood, String comment) {
 		this.id = -1;
 		this.date = date;
 		this.comment = comment;

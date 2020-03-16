@@ -34,11 +34,11 @@ class JournalView extends JFrame {
 	JTextField searchTF;
 	JPanel moodPanel;
 	JRadioButton[] feelings;
-	JButton newBtn, searchBtn, exportBtn, importBtn, editBtn, deleteBtn;
+	JButton newBtn, exportBtn, importBtn, editBtn, deleteBtn;
 	JRadioButton dateSearchRB, stringSearchRB;
 
 	public JournalView(Journal journal) {
-		super("journal");
+		super("Journal");
 		this.journal = journal;
 		listener = new JournalViewListener(journal);
 		journal.data.addUpdateCallback(this::update);
@@ -67,12 +67,9 @@ class JournalView extends JFrame {
 	private GroupLayout.Group createVerticalLayout(GroupLayout layout) {
 		return layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup()
-						.addComponent(importBtn)
-						.addComponent(exportBtn)
 						.addComponent(searchTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(stringSearchRB)
-						.addComponent(dateSearchRB)
-						.addComponent(searchBtn))
+						.addComponent(dateSearchRB))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(dateListScrollPane)
 						.addGroup(layout.createSequentialGroup()
@@ -94,12 +91,9 @@ class JournalView extends JFrame {
 	private GroupLayout.Group createHorizontalLayout(GroupLayout layout) {
 		return layout.createParallelGroup()
 				.addGroup(layout.createSequentialGroup()
-						.addComponent(importBtn)
-						.addComponent(exportBtn)
 						.addComponent(searchTF)
 						.addComponent(stringSearchRB)
-						.addComponent(dateSearchRB)
-						.addComponent(searchBtn))
+						.addComponent(dateSearchRB))
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(dateListScrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addGroup(layout.createParallelGroup()
@@ -137,7 +131,6 @@ class JournalView extends JFrame {
 		newBtn.setEnabled(enabled);
 		editBtn.setEnabled(enabled);
 		deleteBtn.setEnabled(enabled);
-		searchBtn.setEnabled(enabled);
 		importBtn.setEnabled(enabled);
 		exportBtn.setEnabled(enabled);
 
@@ -148,30 +141,10 @@ class JournalView extends JFrame {
 	}
 
 	private void initComponents() {
+		initMenuBar();
+
 		// Search text field
-		searchTF = new JTextField();
-		searchTF.setPreferredSize(new Dimension(0, 25));
-		searchTF.setActionCommand(SEARCH_BUTTON);
-		searchTF.addActionListener(listener);
-		searchTF.setEnabled(false);
-		searchTF.addKeyListener(new KeyListener() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				if (!Character.isDigit(e.getKeyChar()) && dateSearchRB.isSelected()) {
-					e.consume();
-				}
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-		});
-		searchTF.getDocument().addDocumentListener(listener);
-		searchTF.setToolTipText("Date format: mm.dd.yyyy");
+		initSearchTextField();
 
 		// Search type
 		ButtonGroup group = new ButtonGroup();
@@ -202,7 +175,6 @@ class JournalView extends JFrame {
 		// Buttons
 		importBtn = createButton(IMPORT_BUTTON);
 		exportBtn = createButton(EXPORT_BUTTON);
-		searchBtn = createButton(SEARCH_BUTTON);
 		newBtn = createButton(NEW_BUTTON);
 		editBtn = createButton(EDIT_BUTTON);
 		deleteBtn = createButton(DELETE_BUTTON);
@@ -228,6 +200,55 @@ class JournalView extends JFrame {
 		commentTP.setEditable(false);
 		commentTP.setText(LOADING_APPLICATION);
 		commentScrollPane = new JScrollPane(commentTP);
+	}
+
+	private void initSearchTextField() {
+		searchTF = new JTextField();
+		searchTF.setPreferredSize(new Dimension(0, 25));
+		searchTF.setActionCommand(SEARCH_BUTTON);
+		searchTF.addActionListener(listener);
+		searchTF.setEnabled(false);
+		searchTF.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if (!Character.isDigit(e.getKeyChar()) && dateSearchRB.isSelected()) {
+					e.consume();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		});
+		searchTF.getDocument().addDocumentListener(listener);
+		searchTF.setToolTipText("Date format: mm.dd.yyyy");
+	}
+
+	private void initMenuBar() {
+		JMenu submenu;
+		JRadioButtonMenuItem rbMenuItem;
+		JCheckBoxMenuItem cbMenuItem;
+
+		final JMenuBar menuBar = new JMenuBar();
+
+		JMenu fileMenu = new JMenu("File");
+		fileMenu.setMnemonic(KeyEvent.VK_F);
+		fileMenu.getAccessibleContext().setAccessibleDescription("File");
+		menuBar.add(fileMenu);
+
+		JMenuItem importMenuItem = new JMenuItem("Import", KeyEvent.VK_I);
+		importMenuItem.setMnemonic(KeyEvent.VK_I);
+		fileMenu.add(importMenuItem);
+
+		JMenuItem exportMenuItem = new JMenuItem("Export", KeyEvent.VK_E);
+		exportMenuItem.setMnemonic(KeyEvent.VK_E);
+		fileMenu.add(exportMenuItem);
+
+		setJMenuBar(menuBar);
 	}
 
 	private JButton createButton(String text) {

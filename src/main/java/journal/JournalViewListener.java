@@ -2,6 +2,7 @@ package journal;
 
 import com.google.common.flogger.FluentLogger;
 import journal.data.Entry;
+import journal.data.EntryStorage;
 import journal.data.FileHandler;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static journal.JournalView.*;
@@ -75,7 +76,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String path = fc.getSelectedFile().getPath();
 			File file = new File(path);
-			List<Entry> entries = FileHandler.INSTANCE.readFromFile(file);
+			List<Entry> entries = FileHandler.INSTANCE.readFromFile(file).entries;
 			journal.data.saveAll(entries);
 		}
 		journal.view.update();
@@ -88,7 +89,9 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String path = fc.getSelectedFile().getPath();
 			File file = new File(path);
-			FileHandler.INSTANCE.writeToFile(journal.data.getAllEntries(), file);
+			EntryStorage storage = new EntryStorage();
+			storage.entries = journal.data.getAllEntries();
+			FileHandler.INSTANCE.writeToFile(storage, file);
 		}
 	}
 
@@ -118,7 +121,9 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		journal.view.dateList.setSelectedIndex(index);
 		journal.data.save(selectedEntry);
 
-		FileHandler.INSTANCE.writeToFile(journal.data.getAllEntries());
+		EntryStorage storage = new EntryStorage();
+		storage.entries = journal.data.getAllEntries();
+		FileHandler.INSTANCE.writeToFile(storage);
 		journal.view.update();
 	}
 
@@ -136,7 +141,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	}
 
 	private void newButtonPressed() {
-		Entry entry = new Entry(LocalDate.now(), Entry.Mood.Undecided, "");
+		Entry entry = new Entry(LocalDateTime.now(), Entry.Mood.Undecided, "");
 		journal.data.save(entry);
 
 		journal.view.dateList.setSelectedIndex(journal.data.getAllEntries().size() - 1);

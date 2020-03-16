@@ -1,5 +1,6 @@
 package journal;
 
+import journal.data.EntryStorage;
 import journal.data.FileHandler;
 import journal.data.IJournalData;
 import journal.data.JournalData;
@@ -16,13 +17,15 @@ public class Journal implements WindowListener {
 	public void run() {
 		data = new JournalData();
 		data.addUpdateCallback(() -> {
-			FileHandler.INSTANCE.writeToFile(data.getAllEntries());
+			EntryStorage storage = new EntryStorage();
+			storage.entries = data.getAllEntries();
+			FileHandler.INSTANCE.writeToFile(storage);
 		});
 		SwingUtilities.invokeLater(() -> view = new JournalView(this));
 	}
 
 	private void init() {
-		data.saveAll(FileHandler.INSTANCE.readFromFile());
+		data.saveAll(FileHandler.INSTANCE.readFromFile().entries);
 	}
 
 	public static void main(String[] args) {
