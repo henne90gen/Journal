@@ -34,7 +34,8 @@ class JournalView extends JFrame {
 	JTextField searchTF;
 	JPanel moodPanel;
 	JRadioButton[] feelings;
-	JButton newBtn, exportBtn, importBtn, editBtn, deleteBtn;
+	JButton newBtn, editBtn, deleteBtn;
+	JMenuItem importItem, exportItem;
 	JRadioButton dateSearchRB, stringSearchRB;
 
 	public JournalView(Journal journal) {
@@ -131,8 +132,6 @@ class JournalView extends JFrame {
 		newBtn.setEnabled(enabled);
 		editBtn.setEnabled(enabled);
 		deleteBtn.setEnabled(enabled);
-		importBtn.setEnabled(enabled);
-		exportBtn.setEnabled(enabled);
 
 		stringSearchRB.setEnabled(enabled);
 		dateSearchRB.setEnabled(enabled);
@@ -173,8 +172,6 @@ class JournalView extends JFrame {
 		dateListScrollPane.setPreferredSize(new Dimension(DATE_LIST_WIDTH, 0));
 
 		// Buttons
-		importBtn = createButton(IMPORT_BUTTON);
-		exportBtn = createButton(EXPORT_BUTTON);
 		newBtn = createButton(NEW_BUTTON);
 		editBtn = createButton(EDIT_BUTTON);
 		deleteBtn = createButton(DELETE_BUTTON);
@@ -229,10 +226,6 @@ class JournalView extends JFrame {
 	}
 
 	private void initMenuBar() {
-		JMenu submenu;
-		JRadioButtonMenuItem rbMenuItem;
-		JCheckBoxMenuItem cbMenuItem;
-
 		final JMenuBar menuBar = new JMenuBar();
 
 		JMenu fileMenu = new JMenu("File");
@@ -240,13 +233,17 @@ class JournalView extends JFrame {
 		fileMenu.getAccessibleContext().setAccessibleDescription("File");
 		menuBar.add(fileMenu);
 
-		JMenuItem importMenuItem = new JMenuItem("Import", KeyEvent.VK_I);
-		importMenuItem.setMnemonic(KeyEvent.VK_I);
-		fileMenu.add(importMenuItem);
+		importItem = new JMenuItem(IMPORT_BUTTON, KeyEvent.VK_I);
+		importItem.setMnemonic(KeyEvent.VK_I);
+		importItem.addActionListener(listener);
+		importItem.setActionCommand(IMPORT_BUTTON);
+		fileMenu.add(importItem);
 
-		JMenuItem exportMenuItem = new JMenuItem("Export", KeyEvent.VK_E);
-		exportMenuItem.setMnemonic(KeyEvent.VK_E);
-		fileMenu.add(exportMenuItem);
+		exportItem = new JMenuItem(EXPORT_BUTTON, KeyEvent.VK_E);
+		exportItem.setMnemonic(KeyEvent.VK_E);
+		exportItem.addActionListener(listener);
+		exportItem.setActionCommand(EXPORT_BUTTON);
+		fileMenu.add(exportItem);
 
 		setJMenuBar(menuBar);
 	}
