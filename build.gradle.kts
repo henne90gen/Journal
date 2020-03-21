@@ -44,31 +44,51 @@ val test by tasks.getting(Test::class) {
     useJUnitPlatform()
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "Github"
-            url = uri("https://maven.pkg.github.com/henne90gen/Journal")
-            credentials {
-                username = System.getenv("GITHUB_USERNAME")
-                password = System.getenv("GITHUB_TOKEN")
-//                println(username)
-//                if (this.password != null) {
-//                    println(this.password!![0])
-//                } else {
-//                    println("No password set")
-//                }
-            }
-        }
+tasks.processResources {
+    expand(project.properties)
+}
+
+val installZip by tasks.register<Copy>("installZip") {
+    dependsOn(tasks.distZip)
+
+    var installDir = ""
+    if (project.hasProperty("installDir")) {
+        installDir = project.property("installDir").toString()
     }
-    afterEvaluate {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
-                pom {
-                    description.set("Journal Application")
-                }
-            }
-        }
+    if (installDir.isEmpty()) {
+        println("Please provide the 'installDir' property like this: -PinstallDir=\"/path/to/installation/folder\"")
+        return@register
     }
+
+    val zipFile = tasks.distZip.get().archiveFile
+    val outputDir = file(installDir)
+
+    from(zipTree(zipFile))
+    into(outputDir)
+}
+
+val installDesktopScript by tasks.register<Copy>("installDesktopScript") {
+    dependsOn(tasks.processResources)
+
+    var userHome = ""
+    if (project.hasProperty("userHome")) {
+        userHome = project.property("userHome").toString()
+    }
+    if (userHome.isEmpty()) {
+        println("Please provide the 'userHome' property like this: -PuserHome=\"/path/to/users/home/folder\"")
+        return@register
+    }
+
+    val desktopScript = file("${project.buildDir.absolutePath}/resources/main/Journal.desktop")
+    from(desktopScript)
+    into("${userHome}/.local/share/applications")
+}
+
+tasks.register("install") {
+    if (!project.hasProperty("installDir")) {
+        println("Please provide the 'installDir' property like this: -PinstallDir=\"/path/to/installation/folder\"")
+        return@register
+    }
+
+    dependsOn(installZip, installDesktopScript)
 }

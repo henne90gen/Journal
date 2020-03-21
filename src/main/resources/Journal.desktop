@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Journal
+Exec=${installDir}/Journal/bin/Journal
+Icon=${installDir}/Journal/icon.png
+Type=Application
+Categories=Utility
