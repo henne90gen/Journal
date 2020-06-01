@@ -2,10 +2,13 @@ package journal.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.flogger.FluentLogger;
+import journal.Journal;
 import journal.JournalHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class FileHandler {
 
@@ -19,7 +22,26 @@ public class FileHandler {
 	}
 
 	public EntryStorage readFromFile() {
-		return readFromFile(new File(JournalHelper.DEFAULT_JSON_FILE_NAME));
+		File file = getStorageFile();
+		return readFromFile(file);
+	}
+
+	private File getStorageFile() {
+		final Class<?> referenceClass = Journal.class;
+		final URL url = referenceClass.getProtectionDomain().getCodeSource().getLocation();
+		File directory = new File(".");
+		try {
+			final File jarPath = new File(url.toURI()).getParentFile();
+			if ("lib".equals(jarPath.getName())) {
+				// we are inside the 'lib' folder of the installation
+				directory = jarPath.getParentFile();
+			} else {
+				directory = jarPath;
+			}
+		} catch (final URISyntaxException e) {
+			// ignore
+		}
+		return new File(directory, JournalHelper.DEFAULT_FILE_NAME);
 	}
 
 	public EntryStorage readFromFile(File file) {
@@ -43,7 +65,8 @@ public class FileHandler {
 	}
 
 	public void writeToFile(EntryStorage entryStorage) {
-		writeToFile(entryStorage, new File(JournalHelper.DEFAULT_JSON_FILE_NAME));
+		File file = getStorageFile();
+		writeToFile(entryStorage, file);
 	}
 
 	public void writeToFile(EntryStorage entryStorage, File file) {

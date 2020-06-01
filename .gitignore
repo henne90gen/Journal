@@ -6,6 +6,3 @@ build
 
 # Ignore IntelliJ meta-data
 .idea
-
-journal.json
-install.sh

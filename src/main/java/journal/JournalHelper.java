@@ -9,9 +9,7 @@ public class JournalHelper {
 
 	public static final JournalHelper INSTANCE = new JournalHelper();
 
-	public static final String DEFAULT_FILE_NAME = "journal.txt";
-
-	public static final String DEFAULT_JSON_FILE_NAME = "journal.json";
+	public static final String DEFAULT_FILE_NAME = "journal.json";
 
 	private JournalHelper() {}
 
