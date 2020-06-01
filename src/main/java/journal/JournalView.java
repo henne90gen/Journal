@@ -25,8 +25,9 @@ class JournalView extends JFrame {
 	static final String NOTHING_TO_DISPLAY = "Nothing to display";
 	static final String LOADING_APPLICATION = "Loading database";
 
-	private Journal journal;
-	private JournalViewListener listener;
+	private final Journal journal;
+	private final JournalViewListener listener;
+
 	JTextPane commentTP;
 	JScrollPane commentScrollPane;
 	JList<Entry> dateList;

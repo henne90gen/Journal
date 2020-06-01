@@ -26,24 +26,6 @@ public class FileHandler {
 		return readFromFile(file);
 	}
 
-	private File getStorageFile() {
-		final Class<?> referenceClass = Journal.class;
-		final URL url = referenceClass.getProtectionDomain().getCodeSource().getLocation();
-		File directory = new File(".");
-		try {
-			final File jarPath = new File(url.toURI()).getParentFile();
-			if ("lib".equals(jarPath.getName())) {
-				// we are inside the 'lib' folder of the installation
-				directory = jarPath.getParentFile();
-			} else {
-				directory = jarPath;
-			}
-		} catch (final URISyntaxException e) {
-			// ignore
-		}
-		return new File(directory, JournalHelper.DEFAULT_FILE_NAME);
-	}
-
 	public EntryStorage readFromFile(File file) {
 		EntryStorage result = new EntryStorage();
 		if (file == null) {
@@ -57,6 +39,7 @@ public class FileHandler {
 		}
 
 		try {
+			LOGGER.atInfo().log("Reading from file: %s", file);
 			return MAPPER.readValue(file, EntryStorage.class);
 		} catch (IOException e) {
 			LOGGER.atWarning().withCause(e).log("Could not read JSON file. %s", file.getAbsolutePath());
@@ -76,9 +59,29 @@ public class FileHandler {
 		}
 
 		try {
+			LOGGER.atInfo().log("Writing to file: %s", file);
 			MAPPER.writeValue(file, entryStorage);
 		} catch (IOException e) {
 			LOGGER.atWarning().withCause(e).log("Could not write JSON file. %s", file.getAbsolutePath());
 		}
+	}
+
+
+	private File getStorageFile() {
+		final Class<?> referenceClass = Journal.class;
+		final URL url = referenceClass.getProtectionDomain().getCodeSource().getLocation();
+		File directory = new File(".");
+		try {
+			final File jarPath = new File(url.toURI()).getParentFile();
+			if ("lib".equals(jarPath.getName())) {
+				// we are inside the 'lib' folder of the installation
+				directory = jarPath.getParentFile();
+			} else {
+				directory = jarPath;
+			}
+		} catch (final URISyntaxException e) {
+			LOGGER.atWarning().log("Could not get jar path.");
+		}
+		return new File(directory, JournalHelper.DEFAULT_FILE_NAME);
 	}
 }

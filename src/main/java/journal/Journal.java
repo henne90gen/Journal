@@ -14,6 +14,8 @@ public class Journal implements WindowListener {
 	JournalView view;
 	IJournalData data;
 
+	private boolean isInitialized = false;
+
 	public void run() {
 		data = new JournalData();
 		data.addUpdateCallback(() -> {
@@ -25,10 +27,19 @@ public class Journal implements WindowListener {
 	}
 
 	private void init() {
-		data.saveAll(FileHandler.INSTANCE.readFromFile().entries);
+		synchronized (this) {
+			if (isInitialized) {
+				return;
+			}
+			isInitialized = true;
+			data.saveAll(FileHandler.INSTANCE.readFromFile().entries);
+		}
 	}
 
 	public static void main(String[] args) {
+		String format = "%1$tY-%1$tm-%1$td - %1$tH:%1$tM:%1$tS | %4$s: %5$s%6$s%n";
+		System.setProperty("java.util.logging.SimpleFormatter.format", format);
+
 		Journal journal = new Journal();
 		journal.run();
 	}
