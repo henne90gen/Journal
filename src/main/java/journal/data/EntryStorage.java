@@ -7,5 +7,5 @@ public class EntryStorage {
 	public static final int CURRENT_VERSION = 1;
 
 	public int version = CURRENT_VERSION;
-	public List<Entry> entries = new ArrayList<>();
+	public List<JournalEntry> entries = new ArrayList<>();
 }

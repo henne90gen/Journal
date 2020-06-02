@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Entry {
+public class JournalEntry {
 
 	public enum Mood {
 		Awesome, Great, Good, Undecided, Bad, Poor, Waste
@@ -15,14 +15,14 @@ public class Entry {
 	public String comment;
 	public Mood mood;
 
-	public Entry() {
+	public JournalEntry() {
 		this.id = -1;
 		this.date = LocalDateTime.now();
 		this.comment = "";
 		this.mood = Mood.Undecided;
 	}
 
-	public Entry(LocalDateTime date, Mood mood, String comment) {
+	public JournalEntry(LocalDateTime date, Mood mood, String comment) {
 		this.id = -1;
 		this.date = date;
 		this.comment = comment;
@@ -31,7 +31,7 @@ public class Entry {
 
 	@Override
 	public String toString() {
-		DateTimeFormatter f = DateTimeFormatter.ofPattern("dd.MM.YYYY");
+		DateTimeFormatter f = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 		return id + " - " + date.format(f);
 	}
 }

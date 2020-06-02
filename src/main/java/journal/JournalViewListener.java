@@ -1,7 +1,7 @@
 package journal;
 
 import com.google.common.flogger.FluentLogger;
-import journal.data.Entry;
+import journal.data.JournalEntry;
 import journal.data.EntryStorage;
 import journal.data.FileHandler;
 
@@ -40,6 +40,9 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 			case SAVE_BUTTON:
 				saveButtonPressed();
 				break;
+			case CANCEL_BUTTON:
+				cancelButtonPressed();
+				break;
 			case DELETE_BUTTON:
 				deleteButtonPressed();
 				break;
@@ -76,7 +79,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String path = fc.getSelectedFile().getPath();
 			File file = new File(path);
-			List<Entry> entries = FileHandler.INSTANCE.readFromFile(file).entries;
+			List<JournalEntry> entries = FileHandler.INSTANCE.readFromFile(file).entries;
 			journal.data.saveAll(entries);
 		}
 		journal.view.update();
@@ -96,29 +99,23 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	}
 
 	private void deleteButtonPressed() {
-		journal.data.delete(journal.view.dateList.getSelectedValue());
+		journal.data.delete(journal.view.entryList.getSelectedValue());
 		journal.view.update();
 	}
 
 	private void saveButtonPressed() {
-		journal.view.setUIEnabled(true);
-		for (JRadioButton f : journal.view.feelings) {
-			f.setEnabled(false);
-		}
-		journal.view.commentTP.setEditable(false);
-		journal.view.editBtn.setText(EDIT_BUTTON);
-		journal.view.editBtn.setActionCommand(EDIT_BUTTON);
+		finishEditing();
 
-		int index = journal.view.dateList.getSelectedIndex();
-		Entry selectedEntry = journal.view.dateList.getSelectedValue();
+		int index = journal.view.entryList.getSelectedIndex();
+		JournalEntry selectedEntry = journal.view.entryList.getSelectedValue();
 		for (int i = 0; i < journal.view.feelings.length; i++) {
 			if (journal.view.feelings[i].isSelected()) {
-				selectedEntry.mood = Entry.Mood.values()[i];
+				selectedEntry.mood = JournalEntry.Mood.values()[i];
 				break;
 			}
 		}
 		selectedEntry.comment = journal.view.commentTP.getText();
-		journal.view.dateList.setSelectedIndex(index);
+		journal.view.entryList.setSelectedIndex(index);
 		journal.data.save(selectedEntry);
 
 		EntryStorage storage = new EntryStorage();
@@ -127,24 +124,49 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		journal.view.update();
 	}
 
+	private void cancelButtonPressed() {
+		finishEditing();
+		journal.view.update();
+	}
+
+	private void finishEditing() {
+		journal.view.setUIEnabled(true);
+		for (JRadioButton f : journal.view.feelings) {
+			f.setEnabled(false);
+		}
+		journal.view.commentTP.setEditable(false);
+		journal.view.editBtn.setText(EDIT_BUTTON);
+		journal.view.editBtn.setActionCommand(EDIT_BUTTON);
+		journal.view.deleteBtn.setText(DELETE_BUTTON);
+		journal.view.deleteBtn.setActionCommand(DELETE_BUTTON);
+	}
+
 	private void editButtonPressed() {
-		LOGGER.atInfo().log("Editing entry " + journal.view.dateList.getSelectedValue().id + ".");
+		LOGGER.atInfo().log("Editing entry " + journal.view.entryList.getSelectedValue().id + ".");
 
 		journal.view.setUIEnabled(false);
+
 		journal.view.editBtn.setEnabled(true);
+		journal.view.editBtn.setText(SAVE_BUTTON);
+		journal.view.editBtn.setActionCommand(SAVE_BUTTON);
+
+		journal.view.deleteBtn.setEnabled(true);
+		journal.view.deleteBtn.setText(CANCEL_BUTTON);
+		journal.view.deleteBtn.setActionCommand(CANCEL_BUTTON);
+
 		journal.view.commentTP.setEditable(true);
+		journal.view.commentTP.grabFocus();
+
 		for (JRadioButton f : journal.view.feelings) {
 			f.setEnabled(true);
 		}
-		journal.view.editBtn.setText(SAVE_BUTTON);
-		journal.view.editBtn.setActionCommand(SAVE_BUTTON);
 	}
 
 	private void newButtonPressed() {
-		Entry entry = new Entry(LocalDateTime.now(), Entry.Mood.Undecided, "");
+		JournalEntry entry = new JournalEntry(LocalDateTime.now(), JournalEntry.Mood.Undecided, "");
 		journal.data.save(entry);
 
-		journal.view.dateList.setSelectedIndex(journal.data.getAllEntries().size() - 1);
+		journal.view.entryList.setSelectedIndex(journal.data.getAllEntries().size() - 1);
 		actionPerformed(new ActionEvent(this, 0, EDIT_BUTTON));
 	}
 
@@ -168,17 +190,17 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 			date[1] = Integer.parseInt(tmp[1]);
 			date[2] = Integer.parseInt(tmp[2]);
 		}
-		List<Entry> es = journal.data.findByDate(date[1], date[0], date[2]);
-		journal.view.dateList.setListData(getArrayFromList(es));
+		List<JournalEntry> es = journal.data.findByDate(date[1], date[0], date[2]);
+		journal.view.entryList.setListData(getArrayFromList(es));
 		if (es.size() == 0) {
 			journal.view.commentTP.setText(NOTHING_TO_DISPLAY);
 		} else {
-			journal.view.dateList.setSelectedIndex(0);
+			journal.view.entryList.setSelectedIndex(0);
 		}
 	}
 
-	private Entry[] getArrayFromList(List<Entry> list) {
-		Entry[] result = new Entry[list.size()];
+	private JournalEntry[] getArrayFromList(List<JournalEntry> list) {
+		JournalEntry[] result = new JournalEntry[list.size()];
 		for (int i = 0; i < list.size(); i++) {
 			result[i] = list.get(i);
 		}
@@ -186,16 +208,16 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	}
 
 	private void searchString() {
-		List<Entry> entries = journal.data.findByString(journal.view.searchTF.getText());
-		journal.view.dateList.setListData(getArrayFromList(entries));
-		journal.view.dateList.setSelectedIndex(0);
+		List<JournalEntry> entries = journal.data.findByString(journal.view.searchTF.getText());
+		journal.view.entryList.setListData(getArrayFromList(entries));
+		journal.view.entryList.setSelectedIndex(0);
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		if (journal.view.dateList.getSelectedIndex() != -1) {
-			journal.view.commentTP.setText(journal.view.dateList.getSelectedValue().comment);
-			journal.view.feelings[journal.view.dateList.getSelectedValue().mood.ordinal()].setSelected(true);
+		if (journal.view.entryList.getSelectedIndex() != -1) {
+			journal.view.commentTP.setText(journal.view.entryList.getSelectedValue().comment);
+			journal.view.feelings[journal.view.entryList.getSelectedValue().mood.ordinal()].setSelected(true);
 		}
 	}
 

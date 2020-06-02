@@ -10,4 +10,5 @@ So what other things can you do with this application? Well, you can view all th
 
 ## TODO
 
-- changes disappear, when switching workspaces on Gnome
+- add keyboard shortcuts
+    - ctrl+enter to save

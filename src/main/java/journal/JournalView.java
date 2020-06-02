@@ -1,6 +1,6 @@
 package journal;
 
-import journal.data.Entry;
+import journal.data.JournalEntry;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,13 +10,16 @@ import java.util.List;
 
 class JournalView extends JFrame {
 
-	private static final int WIDTH = 700;
-	private static final int HEIGHT = 400;
+	private static final int WIDTH = 900;
+	private static final int HEIGHT = 600;
+	private static final int MIN_WIDTH = 600;
+	private static final int MIN_HEIGHT = 300;
 	private static final int DATE_LIST_WIDTH = 140;
 
 	static final String NEW_BUTTON = "New";
 	static final String EDIT_BUTTON = "Edit";
 	static final String SAVE_BUTTON = "Save";
+	static final String CANCEL_BUTTON = "Cancel";
 	static final String DELETE_BUTTON = "Delete";
 	static final String SEARCH_BUTTON = "Search";
 	static final String EXPORT_BUTTON = "Export";
@@ -30,8 +33,8 @@ class JournalView extends JFrame {
 
 	JTextPane commentTP;
 	JScrollPane commentScrollPane;
-	JList<Entry> dateList;
-	JScrollPane dateListScrollPane;
+	JList<JournalEntry> entryList;
+	JScrollPane entryListScrollPane;
 	JTextField searchTF;
 	JPanel moodPanel;
 	JRadioButton[] feelings;
@@ -47,8 +50,7 @@ class JournalView extends JFrame {
 
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		setMinimumSize(new Dimension(WIDTH, HEIGHT));
-		setMaximumSize(new Dimension(WIDTH, HEIGHT));
+		setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
 		addWindowListener(this.journal);
 		setVisible(true);
 
@@ -73,7 +75,7 @@ class JournalView extends JFrame {
 						.addComponent(stringSearchRB)
 						.addComponent(dateSearchRB))
 				.addGroup(layout.createParallelGroup()
-						.addComponent(dateListScrollPane)
+						.addComponent(entryListScrollPane)
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup()
 										.addComponent(newBtn)
@@ -97,7 +99,7 @@ class JournalView extends JFrame {
 						.addComponent(stringSearchRB)
 						.addComponent(dateSearchRB))
 				.addGroup(layout.createSequentialGroup()
-						.addComponent(dateListScrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(entryListScrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addGroup(layout.createParallelGroup()
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(newBtn)
@@ -118,15 +120,25 @@ class JournalView extends JFrame {
 		setUIEnabled(true);
 
 		commentTP.setText("");
-		List<Entry> entriesList = journal.data.getAllEntries();
-		Entry[] entries = new Entry[entriesList.size()];
+		searchTF.setText("");
+
+		int previouslySelectedIndex = entryList.getSelectedIndex();
+		List<JournalEntry> entriesList = journal.data.getAllEntries();
+		JournalEntry[] entries = new JournalEntry[entriesList.size()];
 		for (int i = 0; i < entries.length; i++) {
 			entries[i] = entriesList.get(i);
 		}
-		dateList.setListData(entries);
-		dateList.setSelectedIndex(0);
-		dateList.requestFocus();
-		searchTF.setText("");
+		entryList.setListData(entries);
+
+		if (previouslySelectedIndex >= entries.length) {
+			previouslySelectedIndex = entries.length - 1;
+		}
+		if (previouslySelectedIndex < 0) {
+			previouslySelectedIndex = 0;
+		}
+		entryList.setSelectedIndex(previouslySelectedIndex);
+
+		entryList.requestFocus();
 	}
 
 	void setUIEnabled(boolean enabled) {
@@ -137,12 +149,57 @@ class JournalView extends JFrame {
 		stringSearchRB.setEnabled(enabled);
 		dateSearchRB.setEnabled(enabled);
 		searchTF.setEnabled(enabled);
-		dateList.setEnabled(enabled);
+		entryList.setEnabled(enabled);
 	}
 
 	private void initComponents() {
 		initMenuBar();
+		initSearchBar();
+		initSideBar();
 
+		// Buttons
+		newBtn = createButton(NEW_BUTTON);
+		editBtn = createButton(EDIT_BUTTON);
+		deleteBtn = createButton(DELETE_BUTTON);
+
+		initMoodSelection();
+
+		// Text field
+		commentTP = new JTextPane();
+		commentTP.setEditable(false);
+		commentTP.setText(LOADING_APPLICATION);
+		setFontSize(commentTP, 18.0F);
+		commentScrollPane = new JScrollPane(commentTP);
+	}
+
+	private void initMoodSelection() {
+		moodPanel = new JPanel();
+		moodPanel.setLayout(new GridLayout(0, 7));
+		moodPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		feelings = new JRadioButton[JournalEntry.Mood.values().length];
+		for (int i = 0; i < JournalEntry.Mood.values().length; i++) {
+			feelings[i] = new JRadioButton(JournalEntry.Mood.values()[i].toString());
+			feelings[i].setEnabled(false);
+		}
+		ButtonGroup group = new ButtonGroup();
+		for (JRadioButton feeling : feelings) {
+			group.add(feeling);
+			moodPanel.add(feeling);
+		}
+		feelings[feelings.length / 2].setSelected(true);
+	}
+
+	private void initSideBar() {
+		entryList = new JList<>();
+		entryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		entryList.setVisibleRowCount(2);
+		entryList.addListSelectionListener(listener);
+		setFontSize(entryList, 15.0F);
+		entryListScrollPane = new JScrollPane(entryList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		entryListScrollPane.setPreferredSize(new Dimension(DATE_LIST_WIDTH, 0));
+	}
+
+	private void initSearchBar() {
 		// Search text field
 		initSearchTextField();
 
@@ -163,41 +220,6 @@ class JournalView extends JFrame {
 		dateSearchRB.addActionListener(listener);
 		dateSearchRB.setEnabled(false);
 		group.add(dateSearchRB);
-
-		// List of dates
-		dateList = new JList<>();
-		dateList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		dateList.setVisibleRowCount(2);
-		dateList.addListSelectionListener(listener);
-		dateListScrollPane = new JScrollPane(dateList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		dateListScrollPane.setPreferredSize(new Dimension(DATE_LIST_WIDTH, 0));
-
-		// Buttons
-		newBtn = createButton(NEW_BUTTON);
-		editBtn = createButton(EDIT_BUTTON);
-		deleteBtn = createButton(DELETE_BUTTON);
-
-		// Mood selection
-		moodPanel = new JPanel();
-		moodPanel.setLayout(new GridLayout(0, 7));
-		moodPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		feelings = new JRadioButton[Entry.Mood.values().length];
-		for (int i = 0; i < Entry.Mood.values().length; i++) {
-			feelings[i] = new JRadioButton(Entry.Mood.values()[i].toString());
-			feelings[i].setEnabled(false);
-		}
-		group = new ButtonGroup();
-		for (JRadioButton feeling : feelings) {
-			group.add(feeling);
-			moodPanel.add(feeling);
-		}
-		feelings[feelings.length / 2].setSelected(true);
-
-		// Text field
-		commentTP = new JTextPane();
-		commentTP.setEditable(false);
-		commentTP.setText(LOADING_APPLICATION);
-		commentScrollPane = new JScrollPane(commentTP);
 	}
 
 	private void initSearchTextField() {
@@ -255,5 +277,11 @@ class JournalView extends JFrame {
 		btn.setActionCommand(text);
 		btn.setEnabled(false);
 		return btn;
+	}
+
+	private void setFontSize(Component component, float newFontSize) {
+		Font font = component.getFont();
+		font = font.deriveFont(newFontSize);
+		component.setFont(font);
 	}
 }

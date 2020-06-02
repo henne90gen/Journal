@@ -4,17 +4,17 @@ import java.util.List;
 
 public interface IJournalData {
 
-	List<Entry> getAllEntries();
+	List<JournalEntry> getAllEntries();
 
-	List<Entry> findByString(String text);
+	List<JournalEntry> findByString(String text);
 
-	List<Entry> findByDate(int day, int month, int year);
+	List<JournalEntry> findByDate(int day, int month, int year);
 
-	void save(Entry entry);
+	void save(JournalEntry entry);
 
-	void delete(Entry entry);
+	void delete(JournalEntry entry);
 
 	void addUpdateCallback(Callback callback);
 
-	void saveAll(List<Entry> entries);
+	void saveAll(List<JournalEntry> entries);
 }

@@ -1,6 +1,6 @@
 package journal;
 
-import journal.data.Entry;
+import journal.data.JournalEntry;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,22 +17,22 @@ public class JournalHelper {
 		return LocalDate.parse(line, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 	}
 
-	public Entry.Mood getMood(String line) {
+	public JournalEntry.Mood getMood(String line) {
 		switch (line) {
 			case "Awesome":
-				return Entry.Mood.Awesome;
+				return JournalEntry.Mood.Awesome;
 			case "Great":
-				return Entry.Mood.Great;
+				return JournalEntry.Mood.Great;
 			case "Good":
-				return Entry.Mood.Good;
+				return JournalEntry.Mood.Good;
 			case "Undecided":
-				return Entry.Mood.Undecided;
+				return JournalEntry.Mood.Undecided;
 			case "Bad":
-				return Entry.Mood.Bad;
+				return JournalEntry.Mood.Bad;
 			case "Poor":
-				return Entry.Mood.Poor;
+				return JournalEntry.Mood.Poor;
 			case "Waste":
-				return Entry.Mood.Waste;
+				return JournalEntry.Mood.Waste;
 			default:
 				return null;
 		}

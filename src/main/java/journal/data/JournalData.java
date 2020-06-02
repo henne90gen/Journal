@@ -11,14 +11,14 @@ public class JournalData implements IJournalData {
 
 	private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
 
-	private final List<Entry> entries = new ArrayList<>();
+	private final List<JournalEntry> entries = new ArrayList<>();
 
 	private int lastEntryID = -1;
 
 	private List<Callback> updateCallbacks = new ArrayList<>();
 
 	@Override
-	public List<Entry> findByDate(int day, int month, int year) {
+	public List<JournalEntry> findByDate(int day, int month, int year) {
 		return entries.stream()
 				.filter(e -> day == -1 || e.date.getDayOfMonth() == day)
 				.filter(e -> month == -1 || e.date.getMonthValue() == month)
@@ -27,12 +27,12 @@ public class JournalData implements IJournalData {
 	}
 
 	@Override
-	public List<Entry> getAllEntries() {
+	public List<JournalEntry> getAllEntries() {
 		return entries;
 	}
 
 	@Override
-	public List<Entry> findByString(String text) {
+	public List<JournalEntry> findByString(String text) {
 		if (JournalHelper.INSTANCE.getMood(text) != null) {
 			return entries.stream()
 					.filter(entry -> entry.mood == JournalHelper.INSTANCE.getMood(text))
@@ -44,7 +44,7 @@ public class JournalData implements IJournalData {
 				.collect(Collectors.toList());
 	}
 
-	private void save_(Entry entry) {
+	private void save_(JournalEntry entry) {
 		if (entry.id == -1) {
 			entry.id = getNextID();
 			entries.add(entry);
@@ -52,7 +52,7 @@ public class JournalData implements IJournalData {
 		}
 
 		boolean found = false;
-		for (Entry e : entries) {
+		for (JournalEntry e : entries) {
 			if (entry.id != e.id) {
 				continue;
 			}
@@ -71,15 +71,15 @@ public class JournalData implements IJournalData {
 	}
 
 	@Override
-	public void save(Entry entry) {
+	public void save(JournalEntry entry) {
 		save_(entry);
 
 		invokeCallbacks();
 	}
 
 	@Override
-	public void saveAll(List<Entry> entries) {
-		for (Entry entry : entries) {
+	public void saveAll(List<JournalEntry> entries) {
+		for (JournalEntry entry : entries) {
 			save_(entry);
 		}
 
@@ -91,7 +91,7 @@ public class JournalData implements IJournalData {
 	}
 
 	@Override
-	public void delete(Entry entry) {
+	public void delete(JournalEntry entry) {
 		for (int i = 0; i < entries.size(); i++) {
 			if (entries.get(i).id == entry.id) {
 				entries.remove(i);
