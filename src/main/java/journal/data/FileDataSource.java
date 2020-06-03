@@ -10,14 +10,14 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class FileHandler implements IJournalDataSource{
+public class FileDataSource {
 
 	private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
-	public static final FileHandler INSTANCE = new FileHandler();
+	public static final FileDataSource INSTANCE = new FileDataSource();
 
-	private FileHandler() {
+	private FileDataSource() {
 		MAPPER.findAndRegisterModules();
 	}
 

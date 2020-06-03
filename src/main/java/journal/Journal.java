@@ -1,7 +1,7 @@
 package journal;
 
 import journal.data.EntryStorage;
-import journal.data.FileHandler;
+import journal.data.FileDataSource;
 import journal.data.IJournalData;
 import journal.data.JournalData;
 
@@ -21,7 +21,7 @@ public class Journal implements WindowListener {
 		data.addUpdateCallback(() -> {
 			EntryStorage storage = new EntryStorage();
 			storage.entries = data.getAllEntries();
-			FileHandler.INSTANCE.writeToFile(storage);
+			FileDataSource.INSTANCE.writeToFile(storage);
 		});
 		SwingUtilities.invokeLater(() -> view = new JournalView(this));
 	}
@@ -32,7 +32,7 @@ public class Journal implements WindowListener {
 				return;
 			}
 			isInitialized = true;
-			data.saveAll(FileHandler.INSTANCE.readFromFile().entries);
+			data.init();
 		}
 	}
 

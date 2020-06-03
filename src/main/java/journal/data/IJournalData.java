@@ -17,4 +17,8 @@ public interface IJournalData {
 	void addUpdateCallback(Callback callback);
 
 	void saveAll(List<JournalEntry> entries);
+
+    void init();
+
+    ImportResult importEntries(List<JournalEntry> entries);
 }

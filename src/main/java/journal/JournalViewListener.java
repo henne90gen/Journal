@@ -1,9 +1,10 @@
 package journal;
 
 import com.google.common.flogger.FluentLogger;
+import journal.data.ImportResult;
 import journal.data.JournalEntry;
 import journal.data.EntryStorage;
-import journal.data.FileHandler;
+import journal.data.FileDataSource;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -79,8 +80,15 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			String path = fc.getSelectedFile().getPath();
 			File file = new File(path);
-			List<JournalEntry> entries = FileHandler.INSTANCE.readFromFile(file).entries;
-			journal.data.saveAll(entries);
+			List<JournalEntry> entries = FileDataSource.INSTANCE.readFromFile(file).entries;
+			ImportResult importResult = journal.data.importEntries(entries);
+			if (importResult.hasProblems()) {
+				// TODO show errors to the user
+				LOGGER.atWarning().log("Found problems while importing from %s.", file);
+			} else {
+				LOGGER.atInfo().log("Imported %s successfully.", file);
+				// TODO signal successful import
+			}
 		}
 		journal.view.update();
 	}
@@ -94,7 +102,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 			File file = new File(path);
 			EntryStorage storage = new EntryStorage();
 			storage.entries = journal.data.getAllEntries();
-			FileHandler.INSTANCE.writeToFile(storage, file);
+			FileDataSource.INSTANCE.writeToFile(storage, file);
 		}
 	}
 
@@ -120,7 +128,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 
 		EntryStorage storage = new EntryStorage();
 		storage.entries = journal.data.getAllEntries();
-		FileHandler.INSTANCE.writeToFile(storage);
+		FileDataSource.INSTANCE.writeToFile(storage);
 		journal.view.update();
 	}
 
@@ -142,7 +150,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	}
 
 	private void editButtonPressed() {
-		LOGGER.atInfo().log("Editing entry " + journal.view.entryList.getSelectedValue().id + ".");
+		LOGGER.atInfo().log("Editing entry " + journal.view.entryList.getSelectedValue().uuid + ".");
 
 		journal.view.setUIEnabled(false);
 
