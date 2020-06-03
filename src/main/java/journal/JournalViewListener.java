@@ -1,16 +1,17 @@
 package journal;
 
 import com.google.common.flogger.FluentLogger;
-import journal.data.ImportResult;
-import journal.data.JournalEntry;
 import journal.data.EntryStorage;
 import journal.data.FileDataSource;
+import journal.data.ImportResult;
+import journal.data.JournalEntry;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -77,33 +78,77 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		JFileChooser fc = new JFileChooser();
 		fc.setCurrentDirectory(new File("./"));
 		int returnVal = fc.showOpenDialog(journal.view);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String path = fc.getSelectedFile().getPath();
-			File file = new File(path);
-			List<JournalEntry> entries = FileDataSource.INSTANCE.readFromFile(file).entries;
-			ImportResult importResult = journal.data.importEntries(entries);
-			if (importResult.hasProblems()) {
-				// TODO show errors to the user
-				LOGGER.atWarning().log("Found problems while importing from %s.", file);
-			} else {
-				LOGGER.atInfo().log("Imported %s successfully.", file);
-				// TODO signal successful import
-			}
+		if (returnVal != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+
+		String path = fc.getSelectedFile().getPath();
+		File file = new File(path);
+		List<JournalEntry> entries = FileDataSource.INSTANCE.readFromFile(file).entries;
+		ImportResult importResult = journal.data.importEntries(entries);
+		if (!importResult.hasProblems()) {
+			LOGGER.atInfo().log("Imported %s successfully.", file);
+		} else {
+			LOGGER.atWarning().log("Found problems %d while importing from %s.", importResult.problems.size(), file);
+			showImportFailedDialog(importResult);
 		}
 		journal.view.update();
+	}
+
+	private void showImportFailedDialog(ImportResult importResult) {
+		JDialog dialog = new JDialog(journal.view, "Import Failed", Dialog.ModalityType.APPLICATION_MODAL);
+		GridBagConstraints constraints = new GridBagConstraints();
+		GridBagLayout layout = new GridBagLayout();
+		dialog.setLayout(layout);
+
+		int currentY = 0;
+		for (int i = 0; i < importResult.problems.size(); i++) {
+			constraints.gridx = 0;
+			constraints.gridy = currentY;
+			JLabel label = new JLabel("Problem " + (i + 1));
+			dialog.getContentPane().add(label, constraints);
+
+			for (ImportResult.Diff diff : importResult.problems.get(i).diffs) {
+				constraints.gridy = currentY;
+
+				constraints.gridx = 1;
+				JLabel diffOriginal = new JLabel(diff.getOriginal());
+				dialog.getContentPane().add(diffOriginal, constraints);
+
+				constraints.gridx = 2;
+				JLabel diffNew = new JLabel(diff.getNew());
+				dialog.getContentPane().add(diffNew, constraints);
+
+				currentY++;
+			}
+		}
+
+		JButton okButton = new JButton("OK");
+		constraints.gridwidth = 3;
+		constraints.gridx = 0;
+		constraints.gridy = currentY;
+		dialog.getContentPane().add(okButton, constraints);
+		okButton.addActionListener((event) -> {
+			dialog.dispose();
+		});
+
+		dialog.pack();
+		dialog.setVisible(true);
 	}
 
 	private void exportButtonPressed() {
 		JFileChooser fc = new JFileChooser();
 		fc.setCurrentDirectory(new File("./"));
 		int returnVal = fc.showSaveDialog(journal.view);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String path = fc.getSelectedFile().getPath();
-			File file = new File(path);
-			EntryStorage storage = new EntryStorage();
-			storage.entries = journal.data.getAllEntries();
-			FileDataSource.INSTANCE.writeToFile(storage, file);
+		if (returnVal != JFileChooser.APPROVE_OPTION) {
+			return;
 		}
+
+		String path = fc.getSelectedFile().getPath();
+		File file = new File(path);
+		EntryStorage storage = new EntryStorage();
+		storage.entries = journal.data.getAllEntries();
+		FileDataSource.INSTANCE.writeToFile(storage, file);
 	}
 
 	private void deleteButtonPressed() {
@@ -150,7 +195,12 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	}
 
 	private void editButtonPressed() {
-		LOGGER.atInfo().log("Editing entry " + journal.view.entryList.getSelectedValue().uuid + ".");
+		JournalEntry selectedValue = journal.view.entryList.getSelectedValue();
+		if (selectedValue == null) {
+			LOGGER.atWarning().log("No entry selected.");
+			return;
+		}
+		LOGGER.atInfo().log("Editing entry " + selectedValue.uuid + ".");
 
 		journal.view.setUIEnabled(false);
 
