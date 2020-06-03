@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class FileHandler {
+public class FileHandler implements IJournalDataSource{
 
 	private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
 
