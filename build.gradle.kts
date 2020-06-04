@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     java
     application
@@ -61,6 +63,10 @@ val installZip by tasks.register<Copy>("installZip") {
 
 val installDesktopScript by tasks.register<Copy>("installDesktopScript") {
     dependsOn(tasks.processResources)
+
+    if (Os.isFamily(Os.FAMILY_MAC) or Os.isFamily(Os.FAMILY_WINDOWS)) {
+        return@register
+    }
 
     var userHome = ""
     if (project.hasProperty("userHome")) {
