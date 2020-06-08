@@ -41,6 +41,7 @@ class JournalView extends JFrame {
 	JButton newBtn, editBtn, deleteBtn;
 	JMenuItem importItem, exportItem;
 	JRadioButton dateSearchRB, stringSearchRB;
+	JTextField dayTF, monthTF, yearTF;
 
 	public JournalView(Journal journal) {
 		super("Journal");

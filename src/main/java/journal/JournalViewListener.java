@@ -108,6 +108,8 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 			JLabel label = new JLabel("Problem " + (i + 1));
 			dialog.getContentPane().add(label, constraints);
 
+			constraints.ipadx = 10;
+			constraints.ipady = 10;
 			for (ImportResult.Diff diff : importResult.problems.get(i).diffs) {
 				constraints.gridy = currentY;
 
@@ -127,6 +129,8 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		constraints.gridwidth = 3;
 		constraints.gridx = 0;
 		constraints.gridy = currentY;
+		constraints.ipadx = 0;
+		constraints.ipady = 0;
 		dialog.getContentPane().add(okButton, constraints);
 		okButton.addActionListener((event) -> {
 			dialog.dispose();
