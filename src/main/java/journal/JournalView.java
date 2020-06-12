@@ -27,6 +27,9 @@ class JournalView extends JFrame {
 	static final String SEARCH_RADIO_BUTTON = "Search radio button";
 	static final String NOTHING_TO_DISPLAY = "Nothing to display";
 	static final String LOADING_APPLICATION = "Loading database";
+	static final String DAY_FIELD = "DAY";
+	static final String MONTH_FIELD = "MONTH";
+	static final String YEAR_FIELD = "YEAR";
 
 	private final Journal journal;
 	private final JournalViewListener listener;
@@ -83,6 +86,10 @@ class JournalView extends JFrame {
 										.addComponent(editBtn)
 										.addComponent(deleteBtn))
 								.addGroup(layout.createParallelGroup()
+										.addComponent(dayTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+										.addComponent(monthTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+										.addComponent(yearTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+								.addGroup(layout.createParallelGroup()
 										.addComponent(feelings[0])
 										.addComponent(feelings[1])
 										.addComponent(feelings[2])
@@ -106,6 +113,10 @@ class JournalView extends JFrame {
 										.addComponent(newBtn)
 										.addComponent(editBtn)
 										.addComponent(deleteBtn))
+								.addGroup(layout.createSequentialGroup()
+										.addComponent(dayTF)
+										.addComponent(monthTF)
+										.addComponent(yearTF))
 								.addGroup(layout.createSequentialGroup()
 										.addComponent(feelings[0])
 										.addComponent(feelings[1])
@@ -147,6 +158,13 @@ class JournalView extends JFrame {
 		editBtn.setEnabled(enabled);
 		deleteBtn.setEnabled(enabled);
 
+		dayTF.setEnabled(!enabled);
+		dayTF.setEditable(!enabled);
+		monthTF.setEnabled(!enabled);
+		monthTF.setEditable(!enabled);
+		yearTF.setEnabled(!enabled);
+		yearTF.setEditable(!enabled);
+
 		stringSearchRB.setEnabled(enabled);
 		dateSearchRB.setEnabled(enabled);
 		searchTF.setEnabled(enabled);
@@ -162,6 +180,16 @@ class JournalView extends JFrame {
 		newBtn = createButton(NEW_BUTTON);
 		editBtn = createButton(EDIT_BUTTON);
 		deleteBtn = createButton(DELETE_BUTTON);
+
+		dayTF = new JTextField();
+		dayTF.setEditable(false);
+		dayTF.setEnabled(false);
+		monthTF = new JTextField();
+		monthTF.setEditable(false);
+		monthTF.setEnabled(false);
+		yearTF = new JTextField();
+		yearTF.setEditable(false);
+		yearTF.setEnabled(false);
 
 		initMoodSelection();
 

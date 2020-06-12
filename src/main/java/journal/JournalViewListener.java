@@ -15,7 +15,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import static journal.JournalView.*;
@@ -172,6 +172,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 			}
 		}
 		selectedEntry.comment = journal.view.commentTP.getText();
+		parseDate(selectedEntry);
 		journal.view.entryList.setSelectedIndex(index);
 		journal.data.save(selectedEntry);
 
@@ -179,6 +180,31 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		storage.entries = journal.data.getAllEntries();
 		FileDataSource.INSTANCE.writeToFile(storage);
 		journal.view.update();
+	}
+
+	private void parseDate(JournalEntry selectedEntry) {
+		String monthText = journal.view.monthTF.getText();
+		String dayText = journal.view.dayTF.getText();
+		int month = selectedEntry.date.getDayOfMonth();
+		int day = selectedEntry.date.getMonthValue();
+		String yearText = journal.view.yearTF.getText();
+		int year = selectedEntry.date.getYear();
+		try {
+			year = Integer.parseInt(yearText);
+		} catch (NumberFormatException e) {
+			LOGGER.atWarning().withCause(e).log("Could not parse year");
+		}
+		try {
+			month = Integer.parseInt(monthText);
+		} catch (NumberFormatException e) {
+			LOGGER.atWarning().withCause(e).log("Could not parse month");
+		}
+		try {
+			day = Integer.parseInt(dayText);
+		} catch (NumberFormatException e) {
+			LOGGER.atWarning().withCause(e).log("Could not parse day");
+		}
+		selectedEntry.date = LocalDate.of(year, month, day);
 	}
 
 	private void cancelButtonPressed() {
@@ -225,7 +251,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	}
 
 	private void newButtonPressed() {
-		JournalEntry entry = new JournalEntry(LocalDateTime.now(), JournalEntry.Mood.Undecided, "");
+		JournalEntry entry = new JournalEntry(LocalDate.now(), JournalEntry.Mood.Undecided, "");
 		journal.data.save(entry);
 
 		journal.view.entryList.setSelectedIndex(journal.data.getAllEntries().size() - 1);
@@ -278,8 +304,13 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if (journal.view.entryList.getSelectedIndex() != -1) {
-			journal.view.commentTP.setText(journal.view.entryList.getSelectedValue().comment);
-			journal.view.feelings[journal.view.entryList.getSelectedValue().mood.ordinal()].setSelected(true);
+			JournalEntry selectedEntry = journal.view.entryList.getSelectedValue();
+			journal.view.commentTP.setText(selectedEntry.comment);
+			LocalDate date = selectedEntry.date;
+			journal.view.dayTF.setText("" + date.getDayOfMonth());
+			journal.view.monthTF.setText("" + date.getMonthValue());
+			journal.view.yearTF.setText("" + date.getYear());
+			journal.view.feelings[selectedEntry.mood.ordinal()].setSelected(true);
 		}
 	}
 

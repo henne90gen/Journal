@@ -1,6 +1,6 @@
 package journal.data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
@@ -11,18 +11,18 @@ public class JournalEntry {
 	}
 
 	public UUID uuid;
-	public LocalDateTime date;
+	public LocalDate date;
 	public String comment;
 	public Mood mood;
 
 	public JournalEntry() {
 		this.uuid = UUID.randomUUID();
-		this.date = LocalDateTime.now();
+		this.date = LocalDate.now();
 		this.comment = "";
 		this.mood = Mood.Undecided;
 	}
 
-	public JournalEntry(LocalDateTime date, Mood mood, String comment) {
+	public JournalEntry(LocalDate date, Mood mood, String comment) {
 		this.uuid = UUID.randomUUID();
 		this.date = date;
 		this.comment = comment;

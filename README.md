@@ -15,3 +15,7 @@ So what other things can you do with this application? Well, you can view all th
 - import
     - match entries by uuid
     - scan for differences
+- auto-save
+- redesign "new" behavior to not allow multiple entries for one day
+    - remove "new" button
+    - add special entry in list for current day, that can be used to create a new entry

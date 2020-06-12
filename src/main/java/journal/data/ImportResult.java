@@ -1,6 +1,6 @@
 package journal.data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,7 @@ public class ImportResult {
 
 	public static abstract class Diff {
 		public abstract String getOriginal();
+
 		public abstract String getNew();
 	}
 
@@ -72,10 +73,10 @@ public class ImportResult {
 	}
 
 	public static class DateDiff extends Diff {
-		public final LocalDateTime originalDate;
-		public final LocalDateTime newDate;
+		public final LocalDate originalDate;
+		public final LocalDate newDate;
 
-		public DateDiff(LocalDateTime originalDate, LocalDateTime newDate) {
+		public DateDiff(LocalDate originalDate, LocalDate newDate) {
 			this.originalDate = originalDate;
 			this.newDate = newDate;
 		}
