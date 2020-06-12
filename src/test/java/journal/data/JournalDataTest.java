@@ -2,7 +2,8 @@ package journal.data;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,39 +15,39 @@ public class JournalDataTest {
 	@Test
 	public void testSaveNewEntry() {
 		JournalData data = new JournalData();
-		LocalDateTime date = LocalDateTime.of(2019, 1, 2, 8, 0);
+		LocalDate date = LocalDate.of(2019, 1, 2);
 		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test");
 		data.save(entry);
 
 		List<JournalEntry> entries = data.getAllEntries();
 		assertEquals(1, entries.size());
 		JournalEntry actualEntry = entries.get(0);
-		assertEntry(actualEntry, LocalDateTime.of(2019, 1, 2, 8, 0), JournalEntry.Mood.Awesome, "Test");
+		assertEntry(actualEntry, LocalDate.of(2019, 1, 2), JournalEntry.Mood.Awesome, "Test");
 	}
 
 	@Test
 	public void testSaveExistingEntry() {
 		JournalData data = new JournalData();
-		LocalDateTime date = LocalDateTime.of(2019, 1, 2, 8, 0);
+		LocalDate date = LocalDate.of(2019, 1, 2);
 		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test");
 		data.save(entry);
 
 		entry.comment = "New Test";
 		entry.mood = JournalEntry.Mood.Good;
-		entry.date = LocalDateTime.of(2019, 1, 1, 8, 0);
+		entry.date = LocalDate.of(2019, 1, 1);
 		data.save(entry);
 
 		List<JournalEntry> entries = data.getAllEntries();
 		assertEquals(1, entries.size());
 		JournalEntry actualEntry = entries.get(0);
-		LocalDateTime expectedDate = LocalDateTime.of(2019, 1, 1, 8, 0);
+		LocalDate expectedDate = LocalDate.of(2019, 1, 1);
 		assertEntry(actualEntry, expectedDate, JournalEntry.Mood.Good, "New Test");
 	}
 
 	@Test
 	public void testSaveNewEntryWithExistingId() {
 		IJournalData data = new JournalData();
-		LocalDateTime date = LocalDateTime.of(2019, 1, 2, 8, 0);
+		LocalDate date = LocalDate.of(2019, 1, 2);
 		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test");
 		UUID uuid = UUID.fromString("8357b5bb-d1e3-43e4-9ad8-d3ad78371d8a");
 		entry.uuid = uuid;
@@ -55,7 +56,7 @@ public class JournalDataTest {
 		List<JournalEntry> entries = data.getAllEntries();
 		assertEquals(1, entries.size());
 		JournalEntry actualEntry = entries.get(0);
-		assertEntry(actualEntry, LocalDateTime.of(2019, 1, 2, 8, 0), JournalEntry.Mood.Awesome, "Test");
+		assertEntry(actualEntry, LocalDate.of(2019, 1, 2), JournalEntry.Mood.Awesome, "Test");
 		assertEquals(uuid, actualEntry.uuid);
 	}
 
@@ -91,7 +92,7 @@ public class JournalDataTest {
 	public void testDeleteEntry() {
 		JournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
-		LocalDateTime date = LocalDateTime.of(2019, 1, 1, 8, 0);
+		LocalDate date = LocalDate.of(2019, 1, 1);
 		JournalEntry toBeDeleted = new JournalEntry(date, JournalEntry.Mood.Good, "ToBeDeleted");
 		entries.add(new JournalEntry(date, JournalEntry.Mood.Bad, "NotToBeDeleted-1"));
 		entries.add(toBeDeleted);
@@ -113,7 +114,7 @@ public class JournalDataTest {
 	public void testFindByDateCanFindYear() {
 		IJournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
-		LocalDateTime date = LocalDateTime.of(2019, 1, 1, 8, 0);
+		LocalDate date = LocalDate.of(2019, 1, 1);
 		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1"));
 		entries.add(new JournalEntry(date.plusDays(1), JournalEntry.Mood.Good, "Test-2"));
 		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3"));
@@ -133,7 +134,7 @@ public class JournalDataTest {
 	public void testFindByDateCanFindDay() {
 		IJournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
-		LocalDateTime date = LocalDateTime.of(2019, 1, 1, 8, 0);
+		LocalDate date = LocalDate.of(2019, 1, 1);
 		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1"));
 		entries.add(new JournalEntry(date.plusDays(1), JournalEntry.Mood.Good, "Test-2"));
 		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3"));
@@ -153,7 +154,7 @@ public class JournalDataTest {
 	public void testFindByDateCanFindMonth() {
 		IJournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
-		LocalDateTime date = LocalDateTime.of(2019, 1, 1, 8, 0);
+		LocalDate date = LocalDate.of(2019, 1, 1);
 		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1"));
 		entries.add(new JournalEntry(date.plusMonths(1), JournalEntry.Mood.Good, "Test-2"));
 		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3"));
@@ -173,7 +174,7 @@ public class JournalDataTest {
 	public void testFindByString() {
 		IJournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
-		LocalDateTime date = LocalDateTime.of(2019, 1, 1, 8, 0);
+		LocalDate date = LocalDate.of(2019, 1, 1);
 		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1"));
 		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-2"));
 		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "A comment"));
@@ -190,7 +191,7 @@ public class JournalDataTest {
 
 	}
 
-	private void assertEntry(JournalEntry actualEntry, LocalDateTime date, JournalEntry.Mood mood, String comment) {
+	private void assertEntry(JournalEntry actualEntry, LocalDate date, JournalEntry.Mood mood, String comment) {
 		assertEquals(date, actualEntry.date);
 		assertEquals(mood, actualEntry.mood);
 		assertEquals(comment, actualEntry.comment);
