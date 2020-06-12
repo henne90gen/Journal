@@ -4,6 +4,7 @@ import journal.data.JournalEntry;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.List;
@@ -192,11 +193,22 @@ class JournalView extends JFrame {
 		yearTF.setEnabled(false);
 
 		initMoodSelection();
+		initCommentTextField();
+	}
 
-		// Text field
+	private void initCommentTextField() {
 		commentTP = new JTextPane();
 		commentTP.setEditable(false);
 		commentTP.setText(LOADING_APPLICATION);
+		Action action = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				listener.saveButtonPressed();
+			}
+		};
+		KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK);
+		commentTP.getInputMap().put(keyStroke, SAVE_BUTTON);
+		commentTP.getActionMap().put(SAVE_BUTTON, action);
 		setFontSize(commentTP, 18.0F);
 		commentScrollPane = new JScrollPane(commentTP);
 	}

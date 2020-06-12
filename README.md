@@ -10,8 +10,6 @@ So what other things can you do with this application? Well, you can view all th
 
 ## TODO
 
-- add keyboard shortcuts
-    - ctrl+enter to save
 - import
     - match entries by uuid
     - scan for differences

@@ -160,7 +160,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		journal.view.update();
 	}
 
-	private void saveButtonPressed() {
+	public void saveButtonPressed() {
 		finishEditing();
 
 		int index = journal.view.entryList.getSelectedIndex();
