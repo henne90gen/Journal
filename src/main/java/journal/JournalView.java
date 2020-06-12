@@ -27,9 +27,6 @@ class JournalView extends JFrame {
 	static final String SEARCH_RADIO_BUTTON = "Search radio button";
 	static final String NOTHING_TO_DISPLAY = "Nothing to display";
 	static final String LOADING_APPLICATION = "Loading database";
-	static final String DAY_FIELD = "DAY";
-	static final String MONTH_FIELD = "MONTH";
-	static final String YEAR_FIELD = "YEAR";
 
 	private final Journal journal;
 	private final JournalViewListener listener;
@@ -147,6 +144,9 @@ class JournalView extends JFrame {
 		}
 		if (previouslySelectedIndex < 0) {
 			previouslySelectedIndex = 0;
+		}
+		if (!journal.isInitialized) {
+			previouslySelectedIndex = entriesList.size() - 1;
 		}
 		entryList.setSelectedIndex(previouslySelectedIndex);
 

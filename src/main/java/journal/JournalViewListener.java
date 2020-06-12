@@ -299,6 +299,16 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		List<JournalEntry> entries = journal.data.findByString(journal.view.searchTF.getText());
 		journal.view.entryList.setListData(getArrayFromList(entries));
 		journal.view.entryList.setSelectedIndex(0);
+		if (entries.isEmpty()) {
+			journal.view.dayTF.setText("");
+			journal.view.monthTF.setText("");
+			journal.view.yearTF.setText("");
+			journal.view.commentTP.setText("");
+			for (int i = 0; i < journal.view.feelings.length;i++) {
+				journal.view.feelings[i].setSelected(false);
+			}
+			journal.view.feelings[3].setSelected(true);
+		}
 	}
 
 	@Override
@@ -321,9 +331,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		if (journal.view.searchTF.getText().length() != 2 && journal.view.searchTF.getText().length() != 5) {
-			actionPerformed(new ActionEvent(journal.view.searchTF, 0, SEARCH_BUTTON));
-		}
+		actionPerformed(new ActionEvent(journal.view.searchTF, 0, SEARCH_BUTTON));
 	}
 
 	@Override

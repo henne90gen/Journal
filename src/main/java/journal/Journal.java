@@ -14,7 +14,7 @@ public class Journal implements WindowListener {
 	JournalView view;
 	IJournalData data;
 
-	private boolean isInitialized = false;
+	public boolean isInitialized = false;
 
 	public void run() {
 		data = new JournalData();
@@ -31,8 +31,8 @@ public class Journal implements WindowListener {
 			if (isInitialized) {
 				return;
 			}
-			isInitialized = true;
 			data.init();
+			isInitialized = true;
 		}
 	}
 
