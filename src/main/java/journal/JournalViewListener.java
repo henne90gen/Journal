@@ -33,19 +33,39 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		switch (e.getActionCommand()) {
-			case NEW_BUTTON -> newButtonPressed();
-			case EDIT_BUTTON -> editButtonPressed();
-			case SAVE_BUTTON -> saveButtonPressed();
-			case CANCEL_BUTTON -> cancelButtonPressed();
-			case DELETE_BUTTON -> deleteButtonPressed();
-			case EXPORT_BUTTON -> exportButtonPressed();
-			case IMPORT_BUTTON -> importButtonPressed();
-			case SYNC_BUTTON -> syncButtonPressed();
-			case SEARCH_BUTTON -> searchButtonPressed();
-			case SEARCH_RADIO_BUTTON -> SwingUtilities.invokeLater(() -> {
-				journal.view.searchTF.setText("");
-				journal.view.update();
-			});
+			case NEW_BUTTON: {
+				newButtonPressed();
+			}
+			case EDIT_BUTTON: {
+				editButtonPressed();
+			}
+			case SAVE_BUTTON: {
+				saveButtonPressed();
+			}
+			case CANCEL_BUTTON: {
+				cancelButtonPressed();
+			}
+			case DELETE_BUTTON: {
+				deleteButtonPressed();
+			}
+			case EXPORT_BUTTON: {
+				exportButtonPressed();
+			}
+			case IMPORT_BUTTON: {
+				importButtonPressed();
+			}
+			case SYNC_BUTTON: {
+				syncButtonPressed();
+			}
+			case SEARCH_BUTTON: {
+				searchButtonPressed();
+			}
+			case SEARCH_RADIO_BUTTON: {
+				SwingUtilities.invokeLater(() -> {
+					journal.view.searchTF.setText("");
+					journal.view.update();
+				});
+			}
 		}
 	}
 
@@ -294,7 +314,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 			journal.view.monthTF.setText("");
 			journal.view.yearTF.setText("");
 			journal.view.commentTP.setText("");
-			for (int i = 0; i < journal.view.feelings.length;i++) {
+			for (int i = 0; i < journal.view.feelings.length; i++) {
 				journal.view.feelings[i].setSelected(false);
 			}
 			journal.view.feelings[3].setSelected(true);
