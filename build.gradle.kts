@@ -13,6 +13,7 @@ repositories {
 
 val floggerVersion = "0.4"
 val jacksonVersion = "2.10.1"
+val googleVersion = "1.23.0"
 
 dependencies {
     implementation("com.google.flogger:flogger:${floggerVersion}")
@@ -22,6 +23,10 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonVersion}")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}")
     implementation("com.fasterxml.jackson.module:jackson-module-parameter-names:${jacksonVersion}")
+
+    implementation("com.google.api-client:google-api-client:${googleVersion}")
+    implementation("com.google.oauth-client:google-oauth-client-jetty:${googleVersion}")
+    implementation("com.google.apis:google-api-services-drive:v3-rev110-${googleVersion}")
 
     // Use JUnit Jupiter API and Engine for testing.
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.2")

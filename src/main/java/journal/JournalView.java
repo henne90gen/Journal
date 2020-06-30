@@ -25,6 +25,7 @@ class JournalView extends JFrame {
 	static final String SEARCH_BUTTON = "Search";
 	static final String EXPORT_BUTTON = "Export";
 	static final String IMPORT_BUTTON = "Import";
+	static final String SYNC_BUTTON = "Sync";
 	static final String SEARCH_RADIO_BUTTON = "Search radio button";
 	static final String NOTHING_TO_DISPLAY = "Nothing to display";
 	static final String LOADING_APPLICATION = "Loading database";
@@ -40,7 +41,7 @@ class JournalView extends JFrame {
 	JPanel moodPanel;
 	JRadioButton[] feelings;
 	JButton newBtn, editBtn, deleteBtn;
-	JMenuItem importItem, exportItem;
+	JMenuItem importItem, exportItem, syncItem;
 	JRadioButton dateSearchRB, stringSearchRB;
 	JTextField dayTF, monthTF, yearTF;
 
@@ -308,6 +309,12 @@ class JournalView extends JFrame {
 		exportItem.addActionListener(listener);
 		exportItem.setActionCommand(EXPORT_BUTTON);
 		fileMenu.add(exportItem);
+
+		syncItem = new JMenuItem(SYNC_BUTTON, KeyEvent.VK_S);
+		syncItem.setMnemonic(KeyEvent.VK_S);
+		syncItem.addActionListener(listener);
+		syncItem.setActionCommand(SYNC_BUTTON);
+		fileMenu.add(syncItem);
 
 		setJMenuBar(menuBar);
 	}

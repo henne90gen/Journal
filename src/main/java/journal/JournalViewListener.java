@@ -33,37 +33,27 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		switch (e.getActionCommand()) {
-			case NEW_BUTTON:
-				newButtonPressed();
-				break;
-			case EDIT_BUTTON:
-				editButtonPressed();
-				break;
-			case SAVE_BUTTON:
-				saveButtonPressed();
-				break;
-			case CANCEL_BUTTON:
-				cancelButtonPressed();
-				break;
-			case DELETE_BUTTON:
-				deleteButtonPressed();
-				break;
-			case EXPORT_BUTTON:
-				exportButtonPressed();
-				break;
-			case IMPORT_BUTTON:
-				importButtonPressed();
-				break;
-			case SEARCH_BUTTON:
-				searchButtonPressed();
-				break;
-			case SEARCH_RADIO_BUTTON:
-				SwingUtilities.invokeLater(() -> {
-					journal.view.searchTF.setText("");
-					journal.view.update();
-				});
-				break;
+			case NEW_BUTTON -> newButtonPressed();
+			case EDIT_BUTTON -> editButtonPressed();
+			case SAVE_BUTTON -> saveButtonPressed();
+			case CANCEL_BUTTON -> cancelButtonPressed();
+			case DELETE_BUTTON -> deleteButtonPressed();
+			case EXPORT_BUTTON -> exportButtonPressed();
+			case IMPORT_BUTTON -> importButtonPressed();
+			case SYNC_BUTTON -> syncButtonPressed();
+			case SEARCH_BUTTON -> searchButtonPressed();
+			case SEARCH_RADIO_BUTTON -> SwingUtilities.invokeLater(() -> {
+				journal.view.searchTF.setText("");
+				journal.view.update();
+			});
 		}
+	}
+
+	private void syncButtonPressed() {
+		Thread thread = new Thread(() -> {
+			journal.data.syncWithGoogleDrive();
+		});
+		thread.start();
 	}
 
 	private void searchButtonPressed() {

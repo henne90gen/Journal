@@ -21,4 +21,6 @@ public interface IJournalData {
     void init();
 
     ImportResult importEntries(List<JournalEntry> entries);
+
+    void syncWithGoogleDrive();
 }

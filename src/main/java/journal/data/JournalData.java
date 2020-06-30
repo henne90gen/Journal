@@ -1,9 +1,10 @@
 package journal.data;
 
 import com.google.common.flogger.FluentLogger;
-import journal.Journal;
+import journal.GoogleDriveIntegration;
 import journal.JournalHelper;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -101,6 +102,28 @@ public class JournalData implements IJournalData {
 			return;
 		}
 		this.updateCallbacks.add(callback);
+	}
+
+	@Override
+	public void syncWithGoogleDrive() {
+		LOGGER.atInfo().log("Syncing with Google Drive");
+		GoogleDriveIntegration driveIntegration = new GoogleDriveIntegration();
+		try {
+			EntryStorage entryStorage = driveIntegration.downloadJournal();
+
+			for (JournalEntry entry : entryStorage.entries) {
+				while (this.entries.containsKey(entry.uuid)) {
+					entry.uuid = UUID.randomUUID();
+				}
+
+				entries.put(entry.uuid, entry);
+			}
+
+			FileDataSource.INSTANCE.writeToFile(entryStorage);
+			driveIntegration.deleteRemoteAndUploadLocalJournal(FileDataSource.INSTANCE.getStorageFile());
+		} catch (IOException e) {
+			LOGGER.atWarning().withCause(e).log("Could not sync Journal with Google Drive.");
+		}
 	}
 
 	private void invokeCallbacks() {

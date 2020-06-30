@@ -8,9 +8,7 @@ import com.google.common.flogger.FluentLogger;
 import journal.Journal;
 import journal.JournalHelper;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -43,19 +41,36 @@ public class FileDataSource {
 			return result;
 		}
 
-		JsonNode json;
-		try (FileReader reader = new FileReader(file)) {
-			json = MAPPER.readTree(reader);
-		} catch (IllegalStateException | IOException e) {
-			LOGGER.atSevere().withCause(e).log();
+		try (InputStream is = new FileInputStream(file)) {
+			return readFromInputStream(is);
+		} catch (IOException e) {
+			// TODO logging
+			e.printStackTrace();
 			return result;
+		}
+	}
+
+	public EntryStorage readFromInputStream(InputStream inputStream) {
+		EntryStorage result = new EntryStorage();
+		JsonNode json;
+		try {
+			json = MAPPER.readTree(inputStream);
+		} catch (IllegalStateException | IOException e) {
+			LOGGER.atSevere().withCause(e).log("Could not read json file.");
+			return result;
+		} finally {
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		if (json == null) {
 			return result;
 		}
 		if (!json.has("version")) {
-			LOGGER.atSevere().log("JSON file {} does not contain a version number.", file);
+			LOGGER.atSevere().log("JSON does not contain a version number.");
 			return result;
 		}
 
@@ -72,10 +87,10 @@ public class FileDataSource {
 			return result;
 		}
 
-		return withSchemaMigrations(file, json, version);
+		return withSchemaMigrations(json, version);
 	}
 
-	private EntryStorage withSchemaMigrations(File file, JsonNode json, int version) {
+	private EntryStorage withSchemaMigrations(JsonNode json, int version) {
 		if (version != EntryStorage.CURRENT_VERSION) {
 			performSchemaMigrations(version, json);
 		}
@@ -84,13 +99,10 @@ public class FileDataSource {
 		try {
 			result = MAPPER.readValue(json.toString(), EntryStorage.class);
 		} catch (IOException e) {
-			LOGGER.atWarning().withCause(e).log("Could not read JSON file. %s", file.getAbsolutePath());
+			LOGGER.atWarning().withCause(e).log("Could not read JSON.");
 			return result;
 		}
 
-		if (version != EntryStorage.CURRENT_VERSION) {
-			writeToFile(result, file);
-		}
 		return result;
 	}
 
@@ -137,8 +149,7 @@ public class FileDataSource {
 		}
 	}
 
-
-	private File getStorageFile() {
+	public File getStorageFile() {
 		final Class<?> referenceClass = Journal.class;
 		final URL url = referenceClass.getProtectionDomain().getCodeSource().getLocation();
 		File directory = new File(".");
