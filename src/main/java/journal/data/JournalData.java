@@ -119,7 +119,9 @@ public class JournalData implements IJournalData {
 				entries.put(entry.uuid, entry);
 			}
 
-			FileDataSource.INSTANCE.writeToFile(entryStorage);
+			EntryStorage storage = new EntryStorage();
+			storage.entries = getAllEntries();
+			FileDataSource.INSTANCE.writeToFile(storage);
 			driveIntegration.deleteRemoteAndUploadLocalJournal(FileDataSource.INSTANCE.getStorageFile());
 		} catch (IOException e) {
 			LOGGER.atWarning().withCause(e).log("Could not sync Journal with Google Drive.");

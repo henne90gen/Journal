@@ -116,7 +116,7 @@ public class GoogleDriveIntegration {
 				.filter(f -> f.getName().equalsIgnoreCase("journal.json"))
 				.map(File::getId)
 				.findFirst();
-		if (fileIdOpt.isEmpty()) {
+		if (!fileIdOpt.isPresent()) {
 			return new EntryStorage();
 		}
 
