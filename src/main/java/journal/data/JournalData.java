@@ -106,14 +106,24 @@ public class JournalData implements IJournalData {
 
 	@Override
 	public void syncWithGoogleDrive() {
+		// TODO implement deletion of entries
 		LOGGER.atInfo().log("Syncing with Google Drive");
 		GoogleDriveIntegration driveIntegration = new GoogleDriveIntegration();
 		try {
 			EntryStorage entryStorage = driveIntegration.downloadJournal();
 
 			for (JournalEntry entry : entryStorage.entries) {
-				while (this.entries.containsKey(entry.uuid)) {
-					entry.uuid = UUID.randomUUID();
+				if (this.entries.containsKey(entry.uuid)) {
+					JournalEntry originalEntry = this.entries.get(entry.uuid);
+					ImportResult.Problem problem = new ImportResult.Problem();
+					problem.findDiffs(originalEntry, entry);
+					if (!problem.hasDiffs()) {
+						continue;
+					}
+
+					while (this.entries.containsKey(entry.uuid)) {
+						entry.uuid = UUID.randomUUID();
+					}
 				}
 
 				entries.put(entry.uuid, entry);
@@ -122,7 +132,7 @@ public class JournalData implements IJournalData {
 			EntryStorage storage = new EntryStorage();
 			storage.entries = getAllEntries();
 			FileDataSource.INSTANCE.writeToFile(storage);
-			driveIntegration.deleteRemoteAndUploadLocalJournal(FileDataSource.INSTANCE.getStorageFile());
+			driveIntegration.uploadJournal(FileDataSource.INSTANCE.getStorageFile());
 		} catch (IOException e) {
 			LOGGER.atWarning().withCause(e).log("Could not sync Journal with Google Drive.");
 		}

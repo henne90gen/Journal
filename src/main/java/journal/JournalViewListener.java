@@ -35,36 +35,46 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
         switch (e.getActionCommand()) {
             case NEW_BUTTON: {
                 newButtonPressed();
+                break;
             }
             case EDIT_BUTTON: {
                 editButtonPressed();
+                break;
             }
             case SAVE_BUTTON: {
                 saveButtonPressed();
+                break;
             }
             case CANCEL_BUTTON: {
                 cancelButtonPressed();
+                break;
             }
             case DELETE_BUTTON: {
                 deleteButtonPressed();
+                break;
             }
             case EXPORT_BUTTON: {
                 exportButtonPressed();
+                break;
             }
             case IMPORT_BUTTON: {
                 importButtonPressed();
+                break;
             }
             case SYNC_BUTTON: {
                 syncButtonPressed();
+                break;
             }
             case SEARCH_BUTTON: {
                 searchButtonPressed();
+                break;
             }
             case SEARCH_RADIO_BUTTON: {
                 SwingUtilities.invokeLater(() -> {
                     journal.view.searchTF.setText("");
                     journal.view.update();
                 });
+                break;
             }
         }
     }
