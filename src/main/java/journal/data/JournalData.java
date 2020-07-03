@@ -122,6 +122,16 @@ public class JournalData implements IJournalData {
 					if (!problem.hasDiffs()) {
 						continue;
 					}
+					boolean onlyHasDeleteDiff = true;
+					for (ImportResult.Diff diff: problem.diffs) {
+						if (!(diff instanceof ImportResult.DeletedDiff)) {
+							onlyHasDeleteDiff = false;
+							break;
+						}
+					}
+					if (onlyHasDeleteDiff) {
+						continue;
+					}
 
 					while (this.entries.containsKey(entry.uuid)) {
 						entry.uuid = UUID.randomUUID();
