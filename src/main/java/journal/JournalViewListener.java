@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static journal.JournalView.*;
@@ -193,7 +194,8 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 			}
 		}
 		selectedEntry.comment = journal.view.commentTP.getText();
-		parseDate(selectedEntry);
+		selectedEntry.date = parseDate(selectedEntry.date);
+		selectedEntry.lastModified = LocalDateTime.now();
 		journal.view.entryList.setSelectedIndex(index);
 		journal.data.save(selectedEntry);
 
@@ -203,13 +205,13 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		journal.view.update();
 	}
 
-	private void parseDate(JournalEntry selectedEntry) {
+	private LocalDate parseDate(LocalDate fallback) {
 		String monthText = journal.view.monthTF.getText();
 		String dayText = journal.view.dayTF.getText();
-		int month = selectedEntry.date.getDayOfMonth();
-		int day = selectedEntry.date.getMonthValue();
+		int month = fallback.getDayOfMonth();
+		int day = fallback.getMonthValue();
 		String yearText = journal.view.yearTF.getText();
-		int year = selectedEntry.date.getYear();
+		int year = fallback.getYear();
 		try {
 			year = Integer.parseInt(yearText);
 		} catch (NumberFormatException e) {
@@ -225,7 +227,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 		} catch (NumberFormatException e) {
 			LOGGER.atWarning().withCause(e).log("Could not parse day");
 		}
-		selectedEntry.date = LocalDate.of(year, month, day);
+		return LocalDate.of(year, month, day);
 	}
 
 	private void cancelButtonPressed() {
@@ -272,7 +274,7 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	}
 
 	private void newButtonPressed() {
-		JournalEntry entry = new JournalEntry(LocalDate.now(), JournalEntry.Mood.Undecided, "");
+		JournalEntry entry = new JournalEntry();
 		journal.data.save(entry);
 
 		journal.view.entryList.setSelectedIndex(journal.data.getAllEntries(journal.view.showDeletedCB.isSelected()).size() - 1);

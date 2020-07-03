@@ -1,8 +1,11 @@
 package journal.data;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +18,8 @@ public class JournalDataTest {
 	public void testGetAllEntries() {
 		JournalData data = new JournalData();
 		LocalDate date = LocalDate.of(2019, 1, 2);
-		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test");
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test", lastModified);
 		data.save(entry);
 
 		List<JournalEntry> entries = data.getAllEntries(false);
@@ -34,7 +38,8 @@ public class JournalDataTest {
 	public void testSaveNewEntry() {
 		JournalData data = new JournalData();
 		LocalDate date = LocalDate.of(2019, 1, 2);
-		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test");
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test", lastModified);
 		data.save(entry);
 
 		List<JournalEntry> entries = data.getAllEntries();
@@ -47,7 +52,8 @@ public class JournalDataTest {
 	public void testSaveExistingEntry() {
 		JournalData data = new JournalData();
 		LocalDate date = LocalDate.of(2019, 1, 2);
-		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test");
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test", lastModified);
 		data.save(entry);
 
 		entry.comment = "New Test";
@@ -66,7 +72,8 @@ public class JournalDataTest {
 	public void testSaveNewEntryWithExistingId() {
 		IJournalData data = new JournalData();
 		LocalDate date = LocalDate.of(2019, 1, 2);
-		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test");
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test", lastModified);
 		UUID uuid = UUID.fromString("8357b5bb-d1e3-43e4-9ad8-d3ad78371d8a");
 		entry.uuid = uuid;
 		data.save(entry);
@@ -111,10 +118,11 @@ public class JournalDataTest {
 		JournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
 		LocalDate date = LocalDate.of(2019, 1, 1);
-		JournalEntry toBeDeleted = new JournalEntry(date, JournalEntry.Mood.Good, "ToBeDeleted");
-		entries.add(new JournalEntry(date, JournalEntry.Mood.Bad, "NotToBeDeleted-1"));
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		JournalEntry toBeDeleted = new JournalEntry(date, JournalEntry.Mood.Good, "ToBeDeleted", lastModified);
+		entries.add(new JournalEntry(date, JournalEntry.Mood.Bad, "NotToBeDeleted-1", lastModified));
 		entries.add(toBeDeleted);
-		entries.add(new JournalEntry(date, JournalEntry.Mood.Great, "NotToBeDeleted-2"));
+		entries.add(new JournalEntry(date, JournalEntry.Mood.Great, "NotToBeDeleted-2", lastModified));
 		data.saveAll(entries);
 
 		data.delete(toBeDeleted);
@@ -133,9 +141,10 @@ public class JournalDataTest {
 		IJournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
 		LocalDate date = LocalDate.of(2019, 1, 1);
-		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1"));
-		entries.add(new JournalEntry(date.plusDays(1), JournalEntry.Mood.Good, "Test-2"));
-		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3"));
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1", lastModified));
+		entries.add(new JournalEntry(date.plusDays(1), JournalEntry.Mood.Good, "Test-2", lastModified));
+		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3", lastModified));
 		data.saveAll(entries);
 
 		List<JournalEntry> actualEntries = data.findByDate(-1, -1, 2019);
@@ -153,9 +162,10 @@ public class JournalDataTest {
 		IJournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
 		LocalDate date = LocalDate.of(2019, 1, 1);
-		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1"));
-		entries.add(new JournalEntry(date.plusDays(1), JournalEntry.Mood.Good, "Test-2"));
-		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3"));
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1", lastModified));
+		entries.add(new JournalEntry(date.plusDays(1), JournalEntry.Mood.Good, "Test-2", lastModified));
+		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3", lastModified));
 		data.saveAll(entries);
 
 		List<JournalEntry> actualEntries = data.findByDate(1, -1, -1);
@@ -173,9 +183,10 @@ public class JournalDataTest {
 		IJournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
 		LocalDate date = LocalDate.of(2019, 1, 1);
-		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1"));
-		entries.add(new JournalEntry(date.plusMonths(1), JournalEntry.Mood.Good, "Test-2"));
-		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3"));
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1", lastModified));
+		entries.add(new JournalEntry(date.plusMonths(1), JournalEntry.Mood.Good, "Test-2", lastModified));
+		entries.add(new JournalEntry(date.plusYears(1), JournalEntry.Mood.Good, "Test-3", lastModified));
 		data.saveAll(entries);
 
 		List<JournalEntry> actualEntries = data.findByDate(-1, 1, -1);
@@ -193,9 +204,10 @@ public class JournalDataTest {
 		IJournalData data = new JournalData();
 		List<JournalEntry> entries = new ArrayList<>();
 		LocalDate date = LocalDate.of(2019, 1, 1);
-		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1"));
-		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-2"));
-		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "A comment"));
+		LocalDateTime lastModified = LocalDateTime.of(2019, 1, 2, 9, 0);
+		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-1", lastModified));
+		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "Test-2", lastModified));
+		entries.add(new JournalEntry(date, JournalEntry.Mood.Good, "A comment", lastModified));
 		data.saveAll(entries);
 
 		List<JournalEntry> actualEntries = data.findByString("Test");
@@ -213,5 +225,12 @@ public class JournalDataTest {
 		assertEquals(date, actualEntry.date);
 		assertEquals(mood, actualEntry.mood);
 		assertEquals(comment, actualEntry.comment);
+	}
+
+	@Test
+	public void test() throws JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		String result = objectMapper.writeValueAsString(new JournalEntry());
+		System.out.println(result);
 	}
 }

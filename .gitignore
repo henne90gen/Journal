@@ -6,3 +6,9 @@ build
 
 # Ignore IntelliJ meta-data
 .idea
+
+src/main/resources/credentials.json
+journal.json
+install.sh
+out/
+tokens/

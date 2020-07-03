@@ -110,10 +110,10 @@ public class GoogleDriveIntegration {
 		return result;
 	}
 
-	public EntryStorage downloadJournal() throws IOException {
+	public EntryStorage downloadJournal(String fileName) throws IOException {
 		LOGGER.atInfo().log("Downloading Journal from Google Drive.");
 		Optional<String> fileIdOpt = getAllFiles().stream()
-				.filter(f -> f.getName().equalsIgnoreCase("journal.json"))
+				.filter(f -> f.getName().equalsIgnoreCase(fileName))
 				.map(File::getId)
 				.findFirst();
 		if (!fileIdOpt.isPresent()) {
@@ -128,20 +128,19 @@ public class GoogleDriveIntegration {
 
 	public void uploadJournal(java.io.File file) throws IOException {
 		Optional<File> existingFile = getAllFiles().stream()
-				.filter(f -> f.getName().equalsIgnoreCase("journal.json"))
+				.filter(f -> f.getName().equalsIgnoreCase(file.getName()))
 				.findFirst();
 
 		LOGGER.atInfo().log("Uploading new Journal to Google Drive from file: %s", file);
+		File uploadFile = new File();
 		if (existingFile.isPresent()) {
-			File uploadFile = new File();
 			FileContent mediaContent = new FileContent("application/json", file);
 			driveService.files()
 					.update(existingFile.get().getId(), uploadFile, mediaContent)
 					.setFields("id")
 					.execute();
 		} else {
-			File uploadFile = new File();
-			uploadFile.setName("journal.json");
+			uploadFile.setName(file.getName());
 			uploadFile.setParents(Collections.singletonList("appDataFolder"));
 
 			FileContent mediaContent = new FileContent("application/json", file);

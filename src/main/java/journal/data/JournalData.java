@@ -5,6 +5,7 @@ import journal.GoogleDriveIntegration;
 import journal.JournalHelper;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,29 +113,14 @@ public class JournalData implements IJournalData {
 		LOGGER.atInfo().log("Syncing with Google Drive");
 		GoogleDriveIntegration driveIntegration = new GoogleDriveIntegration();
 		try {
-			EntryStorage entryStorage = driveIntegration.downloadJournal();
+			String fileName = FileDataSource.INSTANCE.getStorageFile().getName();
+			EntryStorage entryStorage = driveIntegration.downloadJournal(fileName);
 
 			for (JournalEntry entry : entryStorage.entries) {
 				if (this.entries.containsKey(entry.uuid)) {
-					JournalEntry originalEntry = this.entries.get(entry.uuid);
-					ImportResult.Problem problem = new ImportResult.Problem();
-					problem.findDiffs(originalEntry, entry);
-					if (!problem.hasDiffs()) {
+					LocalDateTime existingLastModified = this.entries.get(entry.uuid).lastModified;
+					if (existingLastModified.isAfter(entry.lastModified) || existingLastModified.isEqual(entry.lastModified)) {
 						continue;
-					}
-					boolean onlyHasDeleteDiff = true;
-					for (ImportResult.Diff diff: problem.diffs) {
-						if (!(diff instanceof ImportResult.DeletedDiff)) {
-							onlyHasDeleteDiff = false;
-							break;
-						}
-					}
-					if (onlyHasDeleteDiff) {
-						continue;
-					}
-
-					while (this.entries.containsKey(entry.uuid)) {
-						entry.uuid = UUID.randomUUID();
 					}
 				}
 

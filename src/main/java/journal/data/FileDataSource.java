@@ -2,9 +2,7 @@ package journal.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.google.common.flogger.FluentLogger;
 import journal.Journal;
 import journal.JournalHelper;
@@ -15,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.LocalDateTime;
 
 public class FileDataSource {
 
@@ -97,6 +96,7 @@ public class FileDataSource {
 	private EntryStorage withSchemaMigrations(JsonNode json, int version) {
 		if (version != EntryStorage.CURRENT_VERSION) {
 			performSchemaMigrations(version, json);
+			((ObjectNode) json).set("version", new IntNode(EntryStorage.CURRENT_VERSION));
 		}
 
 		EntryStorage result = new EntryStorage();
@@ -116,6 +116,9 @@ public class FileDataSource {
 		}
 		if (version < 3) {
 			migrateToVersion3(json);
+		}
+		if (version < 4) {
+			migrateToVersion4(json);
 		}
 	}
 
@@ -145,6 +148,27 @@ public class FileDataSource {
 		for (int i = 0; i < entries.size(); i++) {
 			ObjectNode entry = (ObjectNode) entries.get(i);
 			entry.set("deleted", BooleanNode.FALSE);
+		}
+	}
+
+	/**
+	 * Add 'lastModified' field to all entries
+	 */
+	private void migrateToVersion4(JsonNode json) {
+		ArrayNode entries = (ArrayNode) json.get("entries");
+		LocalDateTime lastModified = LocalDateTime.now();
+		// "lastEdited":[2020,7,3,23,14,12,493265000]
+		ArrayNode lastModifiedArray = new ArrayNode(JsonNodeFactory.instance);
+		lastModifiedArray.add(lastModified.getYear());
+		lastModifiedArray.add(lastModified.getMonthValue());
+		lastModifiedArray.add(lastModified.getDayOfMonth());
+		lastModifiedArray.add(lastModified.getHour());
+		lastModifiedArray.add(lastModified.getMinute());
+		lastModifiedArray.add(lastModified.getSecond());
+		lastModifiedArray.add(lastModified.getNano());
+		for (int i = 0; i < entries.size(); i++) {
+			ObjectNode entry = (ObjectNode) entries.get(i);
+			entry.set("lastModified", lastModifiedArray);
 		}
 	}
 
