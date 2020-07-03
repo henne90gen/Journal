@@ -3,12 +3,16 @@ package journal.data;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.flogger.FluentLogger;
 import journal.Journal;
 import journal.JournalHelper;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -108,14 +112,17 @@ public class FileDataSource {
 
 	private void performSchemaMigrations(int version, JsonNode json) {
 		if (version < 2) {
-			migrateToVersion2((ObjectNode) json);
+			migrateToVersion2(json);
+		}
+		if (version < 3) {
+			migrateToVersion3(json);
 		}
 	}
 
 	/**
 	 * Changed date from LocalDateTime to LocalDate
 	 */
-	private void migrateToVersion2(ObjectNode json) {
+	private void migrateToVersion2(JsonNode json) {
 		ArrayNode entries = (ArrayNode) json.get("entries");
 		for (int i = 0; i < entries.size(); i++) {
 			ObjectNode entry = (ObjectNode) entries.get(i);
@@ -127,6 +134,17 @@ public class FileDataSource {
 				date.remove(4);
 				date.remove(3);
 			}
+		}
+	}
+
+	/**
+	 * Add 'deleted' flag to all entries
+	 */
+	private void migrateToVersion3(JsonNode json) {
+		ArrayNode entries = (ArrayNode) json.get("entries");
+		for (int i = 0; i < entries.size(); i++) {
+			ObjectNode entry = (ObjectNode) entries.get(i);
+			entry.set("deleted", BooleanNode.FALSE);
 		}
 	}
 

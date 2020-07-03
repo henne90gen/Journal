@@ -4,7 +4,11 @@ import java.util.List;
 
 public interface IJournalData {
 
-	List<JournalEntry> getAllEntries();
+	List<JournalEntry> getAllEntries(boolean includeDeleted);
+
+	default List<JournalEntry> getAllEntries() {
+		return getAllEntries(true);
+	}
 
 	List<JournalEntry> findByString(String text);
 
@@ -18,9 +22,9 @@ public interface IJournalData {
 
 	void saveAll(List<JournalEntry> entries);
 
-    void init();
+	void init();
 
-    ImportResult importEntries(List<JournalEntry> entries);
+	ImportResult importEntries(List<JournalEntry> entries);
 
-    void syncWithGoogleDrive();
+	void syncWithGoogleDrive();
 }

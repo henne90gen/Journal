@@ -26,8 +26,9 @@ public class JournalData implements IJournalData {
 	}
 
 	@Override
-	public List<JournalEntry> getAllEntries() {
+	public List<JournalEntry> getAllEntries(boolean includeDeleted) {
 		return entries.values().stream()
+				.filter(e -> includeDeleted || !e.deleted)
 				.sorted(Comparator.comparing(a -> a.date))
 				.collect(Collectors.toList());
 	}
@@ -90,7 +91,9 @@ public class JournalData implements IJournalData {
 
 	@Override
 	public void delete(JournalEntry entry) {
-		entries.remove(entry.uuid);
+		JournalEntry entryFromMap = entries.get(entry.uuid);
+		entryFromMap.deleted = true;
+		entries.put(entryFromMap.uuid, entryFromMap);
 
 		invokeCallbacks();
 	}
@@ -106,7 +109,6 @@ public class JournalData implements IJournalData {
 
 	@Override
 	public void syncWithGoogleDrive() {
-		// TODO implement deletion of entries
 		LOGGER.atInfo().log("Syncing with Google Drive");
 		GoogleDriveIntegration driveIntegration = new GoogleDriveIntegration();
 		try {

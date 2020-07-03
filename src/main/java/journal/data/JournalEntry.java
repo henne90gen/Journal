@@ -14,12 +14,10 @@ public class JournalEntry {
 	public LocalDate date;
 	public String comment;
 	public Mood mood;
+	public boolean deleted;
 
 	public JournalEntry() {
-		this.uuid = UUID.randomUUID();
-		this.date = LocalDate.now();
-		this.comment = "";
-		this.mood = Mood.Undecided;
+		this(LocalDate.now(), Mood.Undecided, "");
 	}
 
 	public JournalEntry(LocalDate date, Mood mood, String comment) {
@@ -27,6 +25,7 @@ public class JournalEntry {
 		this.date = date;
 		this.comment = comment;
 		this.mood = mood;
+		this.deleted = false;
 	}
 
 	@Override

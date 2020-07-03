@@ -3,7 +3,6 @@ package journal.data;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +10,25 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JournalDataTest {
+
+	@Test
+	public void testGetAllEntries() {
+		JournalData data = new JournalData();
+		LocalDate date = LocalDate.of(2019, 1, 2);
+		JournalEntry entry = new JournalEntry(date, JournalEntry.Mood.Awesome, "Test");
+		data.save(entry);
+
+		List<JournalEntry> entries = data.getAllEntries(false);
+		assertEquals(1, entries.size());
+
+		data.delete(entry);
+
+		List<JournalEntry> entriesAfterDelete = data.getAllEntries(false);
+		assertEquals(0, entriesAfterDelete.size());
+
+		List<JournalEntry> entriesIncludeDeleted = data.getAllEntries(true);
+		assertEquals(1, entriesIncludeDeleted.size());
+	}
 
 	@Test
 	public void testSaveNewEntry() {

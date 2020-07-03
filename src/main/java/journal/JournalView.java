@@ -29,6 +29,7 @@ class JournalView extends JFrame {
 	static final String SEARCH_RADIO_BUTTON = "Search radio button";
 	static final String NOTHING_TO_DISPLAY = "Nothing to display";
 	static final String LOADING_APPLICATION = "Loading database";
+	static final String SHOW_DELETED = "Show deleted";
 
 	private final Journal journal;
 	private final JournalViewListener listener;
@@ -43,6 +44,7 @@ class JournalView extends JFrame {
 	JButton newBtn, editBtn, deleteBtn;
 	JMenuItem importItem, exportItem, syncItem;
 	JRadioButton dateSearchRB, stringSearchRB;
+	JCheckBox showDeletedCB;
 	JTextField dayTF, monthTF, yearTF;
 
 	public JournalView(Journal journal) {
@@ -76,7 +78,8 @@ class JournalView extends JFrame {
 				.addGroup(layout.createParallelGroup()
 						.addComponent(searchTF, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(stringSearchRB)
-						.addComponent(dateSearchRB))
+						.addComponent(dateSearchRB)
+						.addComponent(showDeletedCB))
 				.addGroup(layout.createParallelGroup()
 						.addComponent(entryListScrollPane)
 						.addGroup(layout.createSequentialGroup()
@@ -104,7 +107,8 @@ class JournalView extends JFrame {
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(searchTF)
 						.addComponent(stringSearchRB)
-						.addComponent(dateSearchRB))
+						.addComponent(dateSearchRB)
+						.addComponent(showDeletedCB))
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(entryListScrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addGroup(layout.createParallelGroup()
@@ -134,7 +138,7 @@ class JournalView extends JFrame {
 		searchTF.setText("");
 
 		int previouslySelectedIndex = entryList.getSelectedIndex();
-		List<JournalEntry> entriesList = journal.data.getAllEntries();
+		List<JournalEntry> entriesList = journal.data.getAllEntries(showDeletedCB.isSelected());
 		JournalEntry[] entries = new JournalEntry[entriesList.size()];
 		for (int i = 0; i < entries.length; i++) {
 			entries[i] = entriesList.get(i);
@@ -262,6 +266,10 @@ class JournalView extends JFrame {
 		dateSearchRB.addActionListener(listener);
 		dateSearchRB.setEnabled(false);
 		group.add(dateSearchRB);
+
+		// Show deleted
+		showDeletedCB = new JCheckBox(SHOW_DELETED);
+		showDeletedCB.addItemListener((event) -> SwingUtilities.invokeLater(this::update));
 	}
 
 	private void initSearchTextField() {

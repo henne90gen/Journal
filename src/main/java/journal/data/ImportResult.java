@@ -19,6 +19,9 @@ public class ImportResult {
 			if (!originalEntry.date.equals(newEntry.date)) {
 				diffs.add(new ImportResult.DateDiff(originalEntry.date, newEntry.date));
 			}
+			if (originalEntry.deleted != newEntry.deleted) {
+				diffs.add(new ImportResult.DeletedDiff(originalEntry.deleted, newEntry.deleted));
+			}
 		}
 
 		public boolean hasDiffs() {
@@ -89,6 +92,26 @@ public class ImportResult {
 		@Override
 		public String getNew() {
 			return newDate.format(DateTimeFormatter.ISO_DATE);
+		}
+	}
+
+	public static class DeletedDiff extends Diff {
+		public final Boolean originalDeleted;
+		public final Boolean newDeleted;
+
+		public DeletedDiff(boolean originalDeleted, boolean newDeleted) {
+			this.originalDeleted = originalDeleted;
+			this.newDeleted = newDeleted;
+		}
+
+		@Override
+		public String getOriginal() {
+			return originalDeleted.toString();
+		}
+
+		@Override
+		public String getNew() {
+			return newDeleted.toString();
 		}
 	}
 
