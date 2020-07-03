@@ -10,8 +10,10 @@ public class JournalHelper {
 	public static final JournalHelper INSTANCE = new JournalHelper();
 
 	public static final String DEFAULT_FILE_NAME = "journal.json";
+	public static final String DEFAULT_DEV_FILE_NAME = "journal_dev.json";
 
-	private JournalHelper() {}
+	private JournalHelper() {
+	}
 
 	public LocalDate getDate(String line) {
 		return LocalDate.parse(line, DateTimeFormatter.ofPattern("yyyy-MM-dd"));

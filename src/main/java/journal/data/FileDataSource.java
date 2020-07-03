@@ -170,6 +170,7 @@ public class FileDataSource {
 	public File getStorageFile() {
 		final Class<?> referenceClass = Journal.class;
 		final URL url = referenceClass.getProtectionDomain().getCodeSource().getLocation();
+		String fileName = JournalHelper.DEFAULT_FILE_NAME;
 		File directory = new File(".");
 		try {
 			final File jarPath = new File(url.toURI()).getParentFile();
@@ -178,10 +179,11 @@ public class FileDataSource {
 				directory = jarPath.getParentFile();
 			} else {
 				directory = jarPath;
+				fileName = JournalHelper.DEFAULT_DEV_FILE_NAME;
 			}
 		} catch (final URISyntaxException e) {
 			LOGGER.atWarning().log("Could not get jar path.");
 		}
-		return new File(directory, JournalHelper.DEFAULT_FILE_NAME);
+		return new File(directory, fileName);
 	}
 }
