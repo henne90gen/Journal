@@ -1,7 +1,5 @@
 package journal.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -128,12 +126,15 @@ public class JournalDataTest {
 		data.delete(toBeDeleted);
 
 		List<JournalEntry> actualEntries = data.getAllEntries();
-		assertEquals(2, actualEntries.size());
+		assertEquals(3, actualEntries.size());
 		JournalEntry actualEntry1 = actualEntries.get(0);
 		assertEntry(actualEntry1, date, JournalEntry.Mood.Bad, "NotToBeDeleted-1");
 
 		JournalEntry actualEntry2 = actualEntries.get(1);
-		assertEntry(actualEntry2, date, JournalEntry.Mood.Great, "NotToBeDeleted-2");
+		assertEntry(actualEntry2, date, JournalEntry.Mood.Good, "ToBeDeleted", true);
+
+		JournalEntry actualEntry3 = actualEntries.get(2);
+		assertEntry(actualEntry3, date, JournalEntry.Mood.Great, "NotToBeDeleted-2");
 	}
 
 	@Test
@@ -222,15 +223,13 @@ public class JournalDataTest {
 	}
 
 	private void assertEntry(JournalEntry actualEntry, LocalDate date, JournalEntry.Mood mood, String comment) {
+		assertEntry(actualEntry, date, mood, comment, false);
+	}
+
+	private void assertEntry(JournalEntry actualEntry, LocalDate date, JournalEntry.Mood mood, String comment, boolean deleted) {
 		assertEquals(date, actualEntry.date);
 		assertEquals(mood, actualEntry.mood);
 		assertEquals(comment, actualEntry.comment);
-	}
-
-	@Test
-	public void test() throws JsonProcessingException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		String result = objectMapper.writeValueAsString(new JournalEntry());
-		System.out.println(result);
+		assertEquals(deleted, actualEntry.deleted);
 	}
 }
