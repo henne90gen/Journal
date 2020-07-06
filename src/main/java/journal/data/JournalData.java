@@ -110,7 +110,7 @@ public class JournalData implements IJournalData {
 
 	@Override
 	public void syncWithGoogleDrive() {
-		LOGGER.atInfo().log("Syncing with Google Drive");
+		LOGGER.atInfo().log("Syncing Journal with Google Drive.");
 		GoogleDriveIntegration driveIntegration = new GoogleDriveIntegration();
 		try {
 			String fileName = FileDataSource.INSTANCE.getStorageFile().getName();
@@ -134,6 +134,7 @@ public class JournalData implements IJournalData {
 		} catch (IOException e) {
 			LOGGER.atWarning().withCause(e).log("Could not sync Journal with Google Drive.");
 		}
+		LOGGER.atInfo().log("Synced Journal with Google Drive.");
 	}
 
 	private void invokeCallbacks() {
