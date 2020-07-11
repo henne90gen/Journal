@@ -175,6 +175,8 @@ class JournalView extends JFrame {
 		dateSearchRB.setEnabled(enabled);
 		searchTF.setEnabled(enabled);
 		entryList.setEnabled(enabled);
+
+		showDeletedCB.setEnabled(enabled);
 	}
 
 	private void initComponents() {
