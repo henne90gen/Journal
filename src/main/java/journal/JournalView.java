@@ -322,7 +322,7 @@ class JournalView extends JFrame {
 		syncItem.setMnemonic(KeyEvent.VK_S);
 		syncItem.addActionListener(listener);
 		syncItem.setActionCommand(SYNC_BUTTON);
-		fileMenu.add(syncItem);
+		menuBar.add(syncItem);
 
 		setJMenuBar(menuBar);
 	}

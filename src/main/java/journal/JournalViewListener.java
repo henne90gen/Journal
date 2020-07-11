@@ -81,9 +81,13 @@ class JournalViewListener implements ListSelectionListener, ActionListener, Docu
 	}
 
 	private void syncButtonPressed() {
+		journal.view.syncItem.setText("Syncing...");
 		Thread thread = new Thread(() -> {
 			journal.data.syncWithGoogleDrive();
-			SwingUtilities.invokeLater(() -> journal.view.update());
+			SwingUtilities.invokeLater(() -> {
+				journal.view.syncItem.setText("Sync");
+				journal.view.update();
+			});
 		});
 		thread.start();
 	}
